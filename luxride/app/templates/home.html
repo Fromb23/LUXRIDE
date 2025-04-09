@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxride</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+
+    <header class="bg-[#7c8991] text-white py-4">
+        <div class="container mx-auto flex justify-between items-center px-4">
+            <h1 class="text-3xl font-bold">Luxride</h1>
+            <nav class="space-x-4 text-sm sm:text-base">
+                <a href="#home" class="hover:text-gray-300">Home</a>
+                <a href="#about" class="hover:text-gray-300">About</a>
+                <a href="#contact" class="hover:text-gray-300">Contact</a>
+                <a href="#login" class="hover:text-gray-300">Login</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="bg-[#3cab4b] text-white py-20 text-center">
+        <h2 class="text-3xl sm:text-4xl md:text-5xl font-semibold">Welcome to Luxride!</h2>
+        <p class="mt-4 text-lg sm:text-xl">Your journey to luxury stays and seamless car bookings begins here.</p>
+        <a href="#about"
+            class="mt-6 inline-block px-6 py-3 bg-yellow-500 text-black rounded-full hover:bg-yellow-400">Learn More</a>
+    </section>
+
+    <main class="container mx-auto my-12 px-4">
+        {% block content %}
+        <div class="text-center">
+            <h3 class="text-3xl sm:text-4xl font-semibold mb-4">Luxride Features</h3>
+            <p class="text-lg sm:text-xl mb-6">Discover how Luxride makes your stays and car bookings more convenient.
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+                <div class="bg-white shadow-md p-6 rounded-lg">
+                    <h4 class="text-xl sm:text-2xl font-semibold">Hotel Booking</h4>
+                    <p class="mt-2">Book a luxurious room in top-rated hotels with just a few clicks.</p>
+                </div>
+                <div class="bg-white shadow-md p-6 rounded-lg">
+                    <h4 class="text-xl sm:text-2xl font-semibold">Car Rental</h4>
+                    <p class="mt-2">Choose from a variety of cars for your travels, at affordable prices.</p>
+                </div>
+                <div class="bg-white shadow-md p-6 rounded-lg">
+                    <h4 class="text-xl sm:text-2xl font-semibold">Easy Payments</h4>
+                    <p class="mt-2">Secure and simple payment options for your hotel and car bookings.</p>
+                </div>
+            </div>
+        </div>
+        {% endblock %}
+    </main>
+
+    <footer class="bg-[#7c8991] text-white py-6 mt-12">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2025 Luxride. All rights reserved.</p>
+            <div class="space-x-4 mt-2">
+                <a href="#privacy" class="hover:text-gray-400">Privacy Policy</a>
+                <a href="#terms" class="hover:text-gray-400">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>
