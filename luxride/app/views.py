@@ -1,7 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest
-from .models import CustomUser
+from .models import CustomUser, BorrowedCar
 from django.contrib.auth.hashers import make_password
+from django.contrib import messages
+from django.contrib.auth import login, logout
 
 
 def home(request):
@@ -13,6 +16,7 @@ def login_view(request):
 def register_view(request):
     return render(request, 'auth/create_user.html')
 
+@login_required
 def user_dashboard(request):
     context = {
     'borrowed_car': True,
@@ -62,11 +66,40 @@ def login_view(request):
 
         try:
             user = CustomUser.objects.get(email=email)
+
             if user.check_password(password):
-                return render(request, 'dashboard/user_dashboard.html', {'success': 'Login successful.'})
+
+                login(request, user)
+
+                messages.success(request, 'Login successful.')
+
+                if user.is_superuser:
+                    return redirect('admin_dashboard')
+                else:
+                    return redirect('user_dashboard')
+
             else:
                 return render(request, 'auth/login.html', {'error': 'Invalid credentials.'})
         except CustomUser.DoesNotExist:
             return render(request, 'auth/login.html', {'error': 'User does not exist.'})
         
     return render(request, 'auth/login.html')
+
+def user_dashboard_view(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    borrowed_car = BorrowedCar.objects.filter(user=request.user).first() 
+    
+    current_step = 1
+    step_range = range(1, 5)
+    print(f"borrowed_car: {borrowed_car}")
+    
+    return render(request, 'user_dashboard.html', {
+        'borrowed_car': borrowed_car,
+        'current_step': current_step,
+        'step_range': step_range,
+    })
+
+def logout_view(request):
+    logout(request)
+    return redirect('home')
