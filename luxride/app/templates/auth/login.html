@@ -14,8 +14,14 @@
         <div class="bg-white shadow-lg rounded-lg p-8 max-w-sm w-full">
             <h2 class="text-2xl font-semibold text-center text-[#7c8991] mb-6">Login to Luxride</h2>
 
-            <form action="#" method="POST">
+            <form action="{% url 'login' %}" method="POST">
                 {% csrf_token %}
+                {% if error %}
+                <div class="mb-4 text-red-600 text-sm text-center">{{ error }}</div>
+                {% endif %}
+                {% if success %}
+                <div class="mb-4 text-green-600 text-sm text-center">{{ success }}</div>
+                {% endif %}
 
                 <div class="mb-4">
                     <label for="email" class="block text-sm font-medium text-gray-700">Email</label>

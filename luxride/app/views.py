@@ -54,3 +54,19 @@ def register_view(request):
             return render(request, 'auth/login.html', {'success': 'User created successfully.'})
 
     return render(request, 'auth/create_user.html')
+
+def login_view(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        try:
+            user = CustomUser.objects.get(email=email)
+            if user.check_password(password):
+                return render(request, 'dashboard/user_dashboard.html', {'success': 'Login successful.'})
+            else:
+                return render(request, 'auth/login.html', {'error': 'Invalid credentials.'})
+        except CustomUser.DoesNotExist:
+            return render(request, 'auth/login.html', {'error': 'User does not exist.'})
+        
+    return render(request, 'auth/login.html')
