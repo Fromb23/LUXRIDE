@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Adding some gradient effects and hover animations */
+        .bg-gradient-primary {
+            background: linear-gradient(45deg, #16242e, #78762a);
+        }
+
+        .bg-hover {
+            transition: background 0.3s ease;
+        }
+
+        .bg-hover:hover {
+            background-color: #3e4a56;
+        }
+
+        .shadow-strong {
+            box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .text-accent {
+            color: #f4c542;
+            /* A sharp yellow-gold */
+        }
+    </style>
+</head>
+
+<body class="bg-[#f4f6f8] text-gray-800 min-h-screen font-sans">
+
+    <!-- Header -->
+    <header class="bg-gradient-primary text-white p-4 flex justify-between items-center shadow-xl">
+        <h1 class="text-3xl font-extrabold">Luxride Admin</h1>
+    </header>
+
+    <!-- Sidebar + Main -->
+    <div class="flex flex-col md:flex-row min-h-[calc(100vh-64px)]">
+
+        <!-- Sidebar -->
+        <aside class="w-full md:w-64 bg-[#16242e] text-white p-6 shadow-strong rounded-r-2xl">
+            <!-- Profile Icon -->
+            <div class="flex items-center space-x-4 mb-8">
+                <img src="https://i.ibb.co/tYv8t4q/user-icon.png" class="w-14 h-14 rounded-full border-2 border-white"
+                    alt="Admin" />
+                <div>
+                    <p class="font-semibold text-lg">Admin</p>
+                    <div class="text-sm text-gray-200 relative group cursor-pointer">
+                        Options ▼
+                        <div
+                            class="absolute hidden group-hover:block bg-white text-gray-800 mt-2 rounded shadow w-32 z-50">
+                            <a href="#" class="block px-4 py-2 hover:bg-[#f4c542]">Settings</a>
+                            <a href="#" class="block px-4 py-2 hover:bg-[#f4c542]">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar Menu -->
+            <nav class="space-y-6">
+                <a href="#" class="block px-5 py-3 rounded-lg bg-hover">Dashboard Home</a>
+                <a href="#" class="block px-5 py-3 rounded-lg bg-hover">Manage Users</a>
+                <a href="#" class="block px-5 py-3 rounded-lg bg-hover">Manage Cars</a>
+                <a href="#" class="block px-5 py-3 rounded-lg bg-hover">Borrowing Logs</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6 bg-white rounded-l-2xl shadow-strong">
+            {% block content %}
+            <h2 class="text-2xl font-semibold text-accent mb-6">Welcome to the Admin Panel</h2>
+            <p class="text-lg">Manage the car rentals and users effectively. Select an option from the left to get
+                started.</p>
+            {% endblock %}
+        </main>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-[#f4f6f8] text-center py-4 text-sm text-gray-500 border-t">
+        &copy; 2025 Luxride. All rights reserved.
+    </footer>
+
+</body>
+
+</html>
