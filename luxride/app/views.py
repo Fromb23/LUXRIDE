@@ -1,4 +1,8 @@
 from django.shortcuts import render
+from django.http import HttpRequest
+from .models import CustomUser
+from django.contrib.auth.hashers import make_password
+
 
 def home(request):
     return render(request, 'home.html')
@@ -19,3 +23,34 @@ def user_dashboard(request):
 
 def admin_dashboard(request):
     return render(request, 'dashboard/admin_dashboard.html')
+
+def register_view(request):
+    print("Register view called")
+    if request.method == 'POST':
+        form_type = request.POST.get('form_type')
+
+        if form_type == "register_form":
+            print("Register form submitted")
+            full_name = request.POST.get('full_name')
+            email = request.POST.get('email')
+            phone_number = request.POST.get('phone')
+            password = request.POST.get('password')
+            confirm_password = request.POST.get('confirm_password')
+            driving_license_no = request.POST.get('driving_license_no')
+
+            if password != confirm_password:
+                print("Passwords do not match")
+                return render(request, 'auth/create_user.html', {'error': 'Passwords do not match.'})
+
+            hashed_password = make_password(password)
+            CustomUser.objects.create(
+                full_name=full_name,
+                email=email,
+                phone_number=phone_number,
+                password=hashed_password,
+                driving_license_no=driving_license_no
+            )
+
+            return render(request, 'auth/login.html', {'success': 'User created successfully.'})
+
+    return render(request, 'auth/create_user.html')
