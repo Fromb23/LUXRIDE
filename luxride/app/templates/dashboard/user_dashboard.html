@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>User Dashboard - Luxride</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Add Heroicons CDN for icons -->
+    <script src="https://cdn.jsdelivr.net/npm/heroicons@2.0.11/dist/heroicons.min.js"></script>
 </head>
 
 <body class="flex flex-col min-h-screen bg-[#f3f4f6] text-gray-800">
@@ -13,7 +15,7 @@
     <!-- Header -->
     <header class="bg-[#7c8991] text-white p-4 flex justify-between items-center shadow">
         <h1 class="text-xl font-semibold">Luxride Dashboard</h1>
-        <p>Current Borrowed Car: {{ borrowed_car }}</p>
+        <p>Current Borrowed Car: {{ is_borrowed }}</p>
 
         <!-- Profile Dropdown -->
         <div class="relative">
@@ -35,35 +37,133 @@
 
         <!-- Main -->
         <main class="flex-1 p-6">
-            {% if not borrowed_car %}
+            {% if not is_borrowed and not request.GET.step %}
             <!-- Default Welcome State -->
             <div class="bg-white p-8 rounded-xl shadow text-center">
                 <h2 class="text-2xl font-bold mb-4 text-[#3cab4b]">Welcome to Luxride!</h2>
                 <p class="text-gray-600 mb-6">You haven't borrowed a car yet. Get started below.</p>
-                <a href="?step=1"
-                    class="inline-block bg-[#3cab4b] text-white px-6 py-2 rounded hover:bg-green-700 transition">Get
-                    Started</a>
+                {% if borrowed_car and borrowed_car.current_step and borrowed_car.is_borrowed %}
+                <a href="?step={{ borrowed_car.current_step }}"
+                    class="inline-block bg-[#3cab4b] text-white px-6 py-2 rounded hover:bg-green-700 transition">
+                    Resume Car Booking
+                </a>
+                {% else %}
+                <a href="?step=1" class="inline-block bg-[#3cab4b] text-white px-6 py-2 rounded hover:bg-green-700 transition">
+                    Get Started
+                </a>
+                {% endif %}
             </div>
             {% else %}
             <!-- Steps Navigation -->
-            <div class="space-y-6">
-                {% for i in step_range %}
-                {% if current_step >= i %}
-                <div class="bg-white p-6 rounded-lg shadow border-l-4 border-[#3cab4b]">
-                    <h3 class="text-lg font-semibold text-[#3cab4b]">Step {{ i }}</h3>
-                    <p class="text-sm text-gray-600">This step is complete or in progress.</p>
+            <div class="space-y-6 md:space-y-0">
+                <!-- Mobile/Tablet Steps (Vertical) -->
+                <div class="md:hidden">
+                    <div class="bg-white p-6 rounded-lg shadow border-l-4 border-[#3cab4b]">
+                        <h3 class="text-lg font-semibold text-[#3cab4b]">Step {{ current_step }}</h3>
+                        <p class="text-sm text-gray-600">This step is complete or in progress.</p>
+                    {% if current_step == 1 %}
+                    <p>Select your car</p>
+                    {% elif current_step == 2 %}
+                    <p>Rental details</p>
+                    {% elif current_step == 3 %}
+                    <p>Payment information</p>
+                    {% elif current_step == 4 %}
+                    <p>Confirmation</p>
+                    {% endif %}
+                    </div>  
+                
                 </div>
-                {% else %}
-                <div
-                    class="bg-gray-100 p-6 rounded-lg shadow border-l-4 border-gray-300 opacity-50 pointer-events-none">
-                    <h3 class="text-lg font-semibold">Step {{ i }}</h3>
-                    <p class="text-sm text-gray-500">Locked until previous step is completed.</p>
+
+                <!-- Desktop Steps (Horizontal) -->
+                <div class="hidden md:flex items-center justify-center">
+                    <div class="flex items-center">
+                        {% for i in step_range %}
+                        <div class="flex items-center">
+                            <!-- Step Circle -->
+                            {% if current_step >= i %}
+                            <a href="?step={{ i }}" class="flex flex-col items-center group">
+                                <div
+                                    class="w-12 h-12 rounded-full {% if current_step == i %}bg-[#3cab4b] border-2 border-[#3cab4b]{% else %}bg-white border-2 border-[#3cab4b]{% endif %} flex items-center justify-center text-[#3cab4b] font-bold text-lg">
+                                    {{ i }}
+                                </div>
+                                <span class="mt-2 text-sm font-medium text-[#3cab4b]">Step {{ i }}</span>
+                            </a>
+                            {% else %}
+                            <div class="flex flex-col items-center">
+                                <div
+                                    class="w-12 h-12 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center text-gray-400 font-bold text-lg">
+                                    {{ i }}
+                                </div>
+                                <span class="mt-2 text-sm font-medium text-gray-500">Step {{ i }}</span>
+                            </div>
+                            {% endif %}
+
+                            <!-- Connector Line (except last step) -->
+                            {% if not forloop.last %}
+                            <div
+                                class="w-16 h-1 {% if current_step > i %}bg-[#3cab4b]{% else %}bg-gray-300{% endif %} mx-2">
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
-                {% endif %}
-                {% endfor %}
+
+                <!-- Step Content -->
+                <div class="mt-8 bg-white p-6 rounded-lg shadow">
+                    {% if current_step == 1 %}
+                    <h3 class="text-xl font-semibold mb-4">Step 1: Select Your Car</h3>
+                    <p>Choose from our available luxury vehicles.</p>
+                    <!-- Add your step 1 content here -->
+
+                    {% elif current_step == 2 %}
+                    <h3 class="text-xl font-semibold mb-4">Step 2: Rental Details</h3>
+                    <p>Provide your rental period and other details.</p>
+                    <!-- Add your step 2 content here -->
+
+                    {% elif current_step == 3 %}
+                    <h3 class="text-xl font-semibold mb-4">Step 3: Payment Information</h3>
+                    <p>Enter your payment details to secure your booking.</p>
+                    <!-- Add your step 3 content here -->
+
+                    {% elif current_step == 4 %}
+                    <h3 class="text-xl font-semibold mb-4">Step 4: Confirmation</h3>
+                    <p>Review and confirm your booking details.</p>
+                    <!-- Add your step 4 content here -->
+
+                    {% endif %}
+
+                    <!-- Navigation Buttons -->
+                    <div class="flex justify-between mt-6">
+                        {% if current_step > 1 %}
+                        <a href="?step={{ current_step|add:'-1' }}"
+                            class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded">
+                            Previous
+                        </a>
+                        {% else %}
+                        <span class="bg-gray-100 text-gray-400 px-4 py-2 rounded cursor-not-allowed">
+                            Previous
+                        </span>
+                        {% endif %}
+
+                        {% if current_step < step_range|last %} <a href="?step={{ current_step|add:'1' }}"
+                            class="bg-[#3cab4b] hover:bg-green-700 text-white px-4 py-2 rounded">
+                            Next
+                            </a>
+                            {% else %}
+                            <span class="bg-gray-100 text-gray-400 px-4 py-2 rounded cursor-not-allowed">
+                                Next
+                            </span>
+                            {% endif %}
+                    </div>
+                    <div class="mt-4 text-center">
+                        <a href="{% url 'user_dashboard' %}" class="text-sm text-[#3cab4b] hover:text-[#7c8991]">← Back to Home</a>
+                    </div>
+                </div>
             </div>
             {% endif %}
         </main>
+
     </div>
 
     <!-- Footer -->

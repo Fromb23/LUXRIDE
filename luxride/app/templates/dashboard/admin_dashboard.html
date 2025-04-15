@@ -5,6 +5,8 @@
     <meta charset="UTF-8" />
     <title>Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
     <style>
         /* Adding some gradient effects and hover animations */
         .bg-gradient-primary {
@@ -27,6 +29,14 @@
             color: #f4c542;
             /* A sharp yellow-gold */
         }
+
+        .dropdown-menu {
+            display: none;
+        }
+
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
     </style>
 </head>
 
@@ -35,6 +45,15 @@
     <!-- Header -->
     <header class="bg-gradient-primary text-white p-4 flex justify-between items-center shadow-xl">
         <h1 class="text-3xl font-extrabold">Luxride Admin</h1>
+        <!-- Profile and Settings Dropdown -->
+        <div class="relative group cursor-pointer">
+            <img src="https://i.ibb.co/tYv8t4q/user-icon.png" class="w-14 h-14 rounded-full border-2 border-white"
+                alt="Admin" />
+            <div class="dropdown-menu absolute right-0 hidden bg-white text-gray-800 mt-2 rounded shadow w-32 z-50">
+                <a href="#" class="block px-4 py-2 hover:bg-[#f4c542]">Settings</a>
+                <a href="#" class="block px-4 py-2 hover:bg-[#f4c542]">Logout</a>
+            </div>
+        </div>
     </header>
 
     <!-- Sidebar + Main -->
@@ -42,39 +61,29 @@
 
         <!-- Sidebar -->
         <aside class="w-full md:w-64 bg-[#16242e] text-white p-6 shadow-strong rounded-r-2xl">
-            <!-- Profile Icon -->
-            <div class="flex items-center space-x-4 mb-8">
-                <img src="https://i.ibb.co/tYv8t4q/user-icon.png" class="w-14 h-14 rounded-full border-2 border-white"
-                    alt="Admin" />
-                <div>
-                    <p class="font-semibold text-lg">Admin</p>
-                    <div class="text-sm text-gray-200 relative group cursor-pointer">
-                        Options ▼
-                        <div
-                            class="absolute hidden group-hover:block bg-white text-gray-800 mt-2 rounded shadow w-32 z-50">
-                            <a href="#" class="block px-4 py-2 hover:bg-[#f4c542]">Settings</a>
-                            <a href="#" class="block px-4 py-2 hover:bg-[#f4c542]">Logout</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Sidebar Menu -->
             <nav class="space-y-6">
-                <a href="#" class="block px-5 py-3 rounded-lg bg-hover">Dashboard Home</a>
-                <a href="#" class="block px-5 py-3 rounded-lg bg-hover">Manage Users</a>
-                <a href="#" class="block px-5 py-3 rounded-lg bg-hover">Manage Cars</a>
-                <a href="#" class="block px-5 py-3 rounded-lg bg-hover">Borrowing Logs</a>
+                <a href="#" class="block px-5 py-3 rounded-lg bg-hover sidebar-item" data-target="dashboard-home">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard Home
+                </a>
+                <a href="#" class="block px-5 py-3 rounded-lg bg-hover sidebar-item" data-target="manage-users">
+                    <i class="fas fa-users"></i> Manage Users
+                </a>
+                <a href="#" class="block px-5 py-3 rounded-lg bg-hover sidebar-item" data-target="manage-cars">
+                    <i class="fas fa-car"></i> Manage Cars
+                </a>
+                <a href="#" class="block px-5 py-3 rounded-lg bg-hover sidebar-item" data-target="borrowing-logs">
+                    <i class="fas fa-book"></i> Borrowing Logs
+                </a>
             </nav>
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 p-6 bg-white rounded-l-2xl shadow-strong">
-            {% block content %}
+        <main class="flex-1 p-6 bg-white rounded-l-2xl shadow-strong" id="main-content">
+            <!-- Dynamic Content here -->
             <h2 class="text-2xl font-semibold text-accent mb-6">Welcome to the Admin Panel</h2>
             <p class="text-lg">Manage the car rentals and users effectively. Select an option from the left to get
                 started.</p>
-            {% endblock %}
         </main>
 
     </div>
@@ -83,6 +92,36 @@
     <footer class="bg-[#f4f6f8] text-center py-4 text-sm text-gray-500 border-t">
         &copy; 2025 Luxride. All rights reserved.
     </footer>
+
+    <script>
+        // Function to update the content of the main section dynamically
+        function loadContent(target) {
+            const contentMap = {
+                "dashboard-home": "<h2 class='text-2xl font-semibold text-accent mb-6'>Dashboard</h2><p>Dashboard content goes here...</p>",
+                "manage-users": "<h2 class='text-2xl font-semibold text-accent mb-6'>Manage Users</h2><p>Manage users content goes here...</p>",
+                "manage-cars": "<h2 class='text-2xl font-semibold text-accent mb-6'>Manage Cars</h2><p>Manage cars content goes here...</p>",
+                "borrowing-logs": "<h2 class='text-2xl font-semibold text-accent mb-6'>Borrowing Logs</h2><p>Borrowing logs content goes here...</p>",
+            };
+
+            // Set content based on the selected item
+            document.getElementById('main-content').innerHTML = contentMap[target] || "<p>Content not found.</p>";
+            localStorage.setItem('selectedMenu', target); // Store the selected menu item
+        }
+
+        // Event listeners for sidebar items
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.addEventListener('click', (event) => {
+                const target = event.target.closest('.sidebar-item').dataset.target;
+                loadContent(target);
+            });
+        });
+
+        // Check localStorage to set the default state
+        document.addEventListener('DOMContentLoaded', () => {
+            const selectedMenu = localStorage.getItem('selectedMenu') || 'dashboard-home'; // Default to dashboard-home
+            loadContent(selectedMenu);
+        });
+    </script>
 
 </body>
 

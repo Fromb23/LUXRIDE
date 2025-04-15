@@ -90,14 +90,21 @@ def user_dashboard_view(request):
         return redirect('login')
     borrowed_car = BorrowedCar.objects.filter(user=request.user).first() 
     
-    current_step = 1
-    step_range = range(1, 5)
+    current_step = int(request.GET.get('step', 1))
+    step_range = range(1, 8)
     print(f"borrowed_car: {borrowed_car}")
+    print(list(step_range))
+
+    if borrowed_car and borrowed_car.current_step != current_step:
+        borrowed_car.current_step = current_step
+        borrowed_car.save()
     
-    return render(request, 'user_dashboard.html', {
+    is_borrowed = borrowed_car.is_borrowed() if borrowed_car else False
+    return render(request, 'dashboard/user_dashboard.html', {
         'borrowed_car': borrowed_car,
         'current_step': current_step,
         'step_range': step_range,
+        'is_borrowed': is_borrowed,
     })
 
 def logout_view(request):
