@@ -1,5 +1,6 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from .forms import CarForm
 from datetime import datetime
 from django.http import HttpRequest
 from .models import CustomUser, BorrowedCar, Car
@@ -67,6 +68,56 @@ def admin_dashboard(request):
 
 def admin_main_content(request):
     return render(request, 'dashboard/admin_main_content.html')
+
+
+def manage_cars(request):
+    cars = Car.objects.all()
+    return render(request, 'dashboard/manage_cars.html', {'cars': cars})
+
+
+def create_car(request):
+    if request.method == 'POST':
+        form = CarForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Car created successfully.')
+            return redirect('manage_cars')
+    else:
+        form = CarForm()
+    return render(request, 'dashboard/create_car.html', {'form': form})
+
+
+def edit_car(request, car_id):
+    car = get_object_or_404(Car, id=car_id)
+    if request.method == 'POST':
+        form = CarForm(request.POST, request.FILES, instance=car)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Car updated successfully.')
+            return redirect('manage_cars')
+    else:
+        form = CarForm(instance=car)
+
+    return render(request, 'dashboard/edit_car.html', {'form': form, 'car': car})
+
+
+def delete_car(request, car_id):
+    car = get_object_or_404(Car, id=car_id)
+    if request.method == 'POST':
+        car.delete()
+        messages.success(request, 'Car deleted successfully.')
+        return redirect('manage_cars')
+
+
+def update_status(request, car_id):
+    car = get_object_or_404(Car, id=car_id)
+    if request.method == 'POST':
+        status = request.POST.get('status')
+        car.status = status
+        car.save()
+        messages.success(request, 'Car status updated successfully.')
+        return redirect('manage_cars')
+    return render(request, 'dashboard/update_status.html', {'car': car})
 
 
 def register_view(request):

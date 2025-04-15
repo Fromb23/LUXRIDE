@@ -144,8 +144,31 @@
             .then((data) => {
               document.getElementById("main-content").innerHTML = data;
             })
+
             .catch((error) => {
               console.error("Error loading admin_main_content.html:", error);
+              document.getElementById(target).innerHTML =
+                "<p>Error loading content.</p>";
+            });
+        } else if (target === "manage-users") {
+          fetch("/admin/dashboard/manage-users")
+            .then((response) => response.text())
+            .then((data) => {
+              document.getElementById("main-content").innerHTML = data;
+            })
+            .catch((error) => {
+              console.error("Error loading manage_users.html:", error);
+              document.getElementById(target).innerHTML =
+                "<p>Error loading content.</p>";
+            });
+        } else if (target === "manage-cars") {
+          fetch("/admin/dashboard/cars")
+            .then((response) => response.text())
+            .then((data) => {
+              document.getElementById("main-content").innerHTML = data;
+            })
+            .catch((error) => {
+              console.error("Error loading manage_cars.html:", error);
               document.getElementById(target).innerHTML =
                 "<p>Error loading content.</p>";
             });
@@ -172,6 +195,18 @@
           localStorage.getItem("selectedMenu") || "dashboard-home";
         loadContent(selectedMenu);
       });
+      function loadCreateCarForm() {
+        fetch("/dashboard/cars/create/")
+          .then((res) => res.text())
+          .then((html) => {
+            document.getElementById("main-content").innerHTML = html;
+          })
+          .catch((err) => {
+            console.error("Error loading create_car.html:", err);
+            document.getElementById("main-content").innerHTML =
+              "<p>Error loading form.</p>";
+          });
+      }
 
       document
         .querySelector(".group")
@@ -180,6 +215,23 @@
             event.currentTarget.querySelector(".dropdown-menu");
           dropdownMenu.classList.toggle("hidden");
         });
+
+      function previewImage(event) {
+        const imagePreview = document.getElementById("image-preview");
+        const uploadInfo = document.getElementById("upload-info");
+
+        if (event.target.files && event.target.files[0]) {
+          const reader = new FileReader();
+
+          reader.onload = function (e) {
+            imagePreview.src = e.target.result;
+            imagePreview.classList.remove("hidden");
+            uploadInfo.classList.add("hidden");
+          };
+
+          reader.readAsDataURL(event.target.files[0]);
+        }
+      }
     </script>
   </body>
 </html>

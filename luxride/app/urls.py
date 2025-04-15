@@ -6,10 +6,17 @@ urlpatterns = [
     path('auth/login/', views.login_view, name='login'),
     path('auth/logout/', views.logout_view, name='logout'),
     path('auth/register/', views.register_view, name='register'),
-    # path('dashboard/', views.user_dashboard, name='user_dashboard'),
     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('admin/dashboard/main-content/', views.admin_main_content,
          name='admin_main_content'),
     path('dashboard/', views.user_dashboard_view, name='user_dashboard'),
+
+    # car management
+    path('admin/dashboard/cars/', views.manage_cars, name='manage-cars'),
+    path('dashboard/cars/create/', views.create_car, name='create_car'),
+    path('cars/<int:car_id>/edit/', views.edit_car, name='edit_car'),
+    path('cars/<int:car_id>/delete/', views.delete_car, name='delete_car'),
+    path('cars/<int:car_id>/status/', views.update_status,
+         name='update_status'),
 
 ]
