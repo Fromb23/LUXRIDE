@@ -1,0 +1,51 @@
+<div class="p-4 overflow-x-auto">
+  {% if borrowed_cars %}
+  <table
+    class="min-w-full w-full bg-white shadow-md rounded-lg overflow-hidden table-auto"
+  >
+    <thead class="bg-gray-100 text-gray-700 text-sm">
+      <tr>
+        <th class="py-3 px-4 text-left">Borrow Date</th>
+        <th class="py-3 px-4 text-left">Return Date</th>
+        <th class="py-3 px-4 text-left">Rental Price</th>
+        <th class="py-3 px-4 text-left">User</th>
+        <th class="py-3 px-4 text-left">Car</th>
+        <th class="py-3 px-4 text-left">Step</th>
+        <th class="py-3 px-4 text-left">Status</th>
+      </tr>
+    </thead>
+    <tbody class="text-gray-700 divide-y divide-gray-200 text-sm">
+      {% for record in borrowed_cars %}
+      <tr class="hover:bg-gray-50">
+        <td class="py-3 px-4">{{ record.borrow_date }}</td>
+        <td class="py-3 px-4">{{ record.return_date }}</td>
+        <td class="py-3 px-4">KSh {{ record.rental_price }}</td>
+        <td class="py-3 px-4">{{ record.user.get_full_name }}</td>
+        <td class="py-3 px-4">{{ record.car.name }}</td>
+        <td class="py-3 px-4 capitalize">{{ record.current_step }}</td>
+        <td class="py-3 px-4">
+          {% if record.status == "pending" %}
+          <span class="text-yellow-600 font-medium">Pending</span>
+          {% elif record.status == "verified" %}
+          <span class="text-green-600 font-medium">Verified</span>
+          {% elif record.status == "returned" %}
+          <span class="text-blue-600 font-medium">Returned</span>
+          {% else %}
+          <span class="text-gray-500 font-medium">{{ record.status }}</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="text-center py-10 text-gray-500 text-lg">
+    No borrowed cars yet
+  </div>
+  {% endif %}
+</div>
+
+<!-- Lucide Icons if needed -->
+<script>
+  lucide.createIcons();
+</script>

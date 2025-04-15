@@ -20,12 +20,23 @@ class CustomUserManager(BaseUserManager):
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
+    STATUS_CHOICES = [
+        ('none', 'No Car Borrowed'),
+        ('pending', 'Pending'),
+        ('waiting', 'Waiting Verification'),
+        ('borrowed', 'Borrowed'),
+    ]
     full_name = models.CharField(max_length=100, default="Unknown")
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=128)
     phone_number = models.CharField(max_length=15, blank=True)
     driving_license_no = models.CharField(max_length=50, unique=True)
     is_superuser = models.BooleanField(default=False)
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='none',
+    )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['full_name', 'driving_license_no', 'phone_number']

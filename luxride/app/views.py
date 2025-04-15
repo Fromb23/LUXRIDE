@@ -120,6 +120,16 @@ def update_status(request, car_id):
     return render(request, 'dashboard/update_status.html', {'car': car})
 
 
+def manage_users(request):
+    users = CustomUser.objects.all()
+    return render(request, 'dashboard/manage_users.html', {'users': users})
+
+
+def borrowed_logs(request):
+    borrowed_cars = BorrowedCar.objects.all()
+    return render(request, 'dashboard/borrowed_cars.html', {'borrowed_cars': borrowed_cars})
+
+
 def register_view(request):
     print("Register view called")
     if request.method == 'POST':

@@ -19,4 +19,12 @@ urlpatterns = [
     path('cars/<int:car_id>/status/', views.update_status,
          name='update_status'),
 
+    # user management
+    path('admin/dashboard/users/',
+         views.manage_users, name='manage_users'),
+
+    # borrowed logs
+    path('admin/dashboard/borrowed-logs/',
+         views.borrowed_logs, name='borrowed_logs'),
+
 ]

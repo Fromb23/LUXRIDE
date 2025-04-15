@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Font Awesome for icons -->
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
@@ -130,13 +131,13 @@
       function loadContent(target) {
         const contentMap = {
           "dashboard-home":
-            "<h2 class='text-2xl font-semibold text-accent mb-6'>Dashboard</h2><p>Dashboard content goes here...</p>",
+            "<h2 class='hidden text-gray-500'>Dashboard Home</h2><p>Welcome to the dashboard home content.</p>",
           "manage-users":
-            "<h2 class='text-2xl font-semibold text-accent mb-6'>Manage Users</h2><p>Manage users content goes here...</p>",
+            "<h2 class='hidden text-gray-500'>Manage Users</h2><p>Manage users content goes here...</p>",
           "manage-cars":
-            "<h2 class='text-2xl font-semibold text-accent mb-6'>Manage Cars</h2><p>Manage cars content goes here...</p>",
+            "<h2 class='hidden text-gray-500'>Manage Cars</h2><p>Manage cars content goes here...</p>",
           "borrowing-logs":
-            "<h2 class='text-2xl font-semibold text-accent mb-6'>Borrowing Logs</h2><p>Borrowing logs content goes here...</p>",
+            "<h2 class='hidden text-gray-500'>Borrowing Logs</h2><p>Borrowing logs content goes here...</p>",
         };
         if (target === "dashboard-home") {
           fetch("/admin/dashboard/main-content")
@@ -151,7 +152,7 @@
                 "<p>Error loading content.</p>";
             });
         } else if (target === "manage-users") {
-          fetch("/admin/dashboard/manage-users")
+          fetch("/admin/dashboard/users")
             .then((response) => response.text())
             .then((data) => {
               document.getElementById("main-content").innerHTML = data;
@@ -169,6 +170,17 @@
             })
             .catch((error) => {
               console.error("Error loading manage_cars.html:", error);
+              document.getElementById(target).innerHTML =
+                "<p>Error loading content.</p>";
+            });
+        } else if (target === "borrowing-logs") {
+          fetch("/admin/dashboard/borrowed-logs")
+            .then((response) => response.text())
+            .then((data) => {
+              document.getElementById("main-content").innerHTML = data;
+            })
+            .catch((error) => {
+              console.error("Error loading borrowing_logs.html:", error);
               document.getElementById(target).innerHTML =
                 "<p>Error loading content.</p>";
             });
