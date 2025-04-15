@@ -6,8 +6,10 @@ urlpatterns = [
     path('auth/login/', views.login_view, name='login'),
     path('auth/logout/', views.logout_view, name='logout'),
     path('auth/register/', views.register_view, name='register'),
-    #path('dashboard/', views.user_dashboard, name='user_dashboard'),
+    # path('dashboard/', views.user_dashboard, name='user_dashboard'),
     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin/dashboard/main-content/', views.admin_main_content,
+         name='admin_main_content'),
     path('dashboard/', views.user_dashboard_view, name='user_dashboard'),
 
 ]

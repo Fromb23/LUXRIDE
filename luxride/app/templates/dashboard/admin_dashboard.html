@@ -1,128 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="UTF-8" />
     <title>Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome for icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
     <style>
-        /* Adding some gradient effects and hover animations */
-        .bg-gradient-primary {
-            background: linear-gradient(45deg, #16242e, #78762a);
-        }
+      /* Adding some gradient effects and hover animations */
+      .bg-gradient-primary {
+        background: linear-gradient(45deg, #16242e, #78762a);
+      }
 
-        .bg-hover {
-            transition: background 0.3s ease;
-        }
+      .bg-hover {
+        transition: background 0.3s ease;
+      }
 
-        .bg-hover:hover {
-            background-color: #3e4a56;
-        }
+      .bg-hover:hover {
+        background-color: #3e4a56;
+      }
 
-        .shadow-strong {
-            box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.15);
-        }
+      .shadow-strong {
+        box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.15);
+      }
 
-        .text-accent {
-            color: #f4c542;
-            /* A sharp yellow-gold */
-        }
+      .text-accent {
+        color: #f4c542;
+        /* A sharp yellow-gold */
+      }
 
-        .dropdown-menu {
-            display: none;
-        }
+      .dropdown-menu {
+        display: none;
+      }
 
-        .dropdown:hover .dropdown-menu {
-            display: block;
-        }
+      .dropdown:hover .dropdown-menu {
+        display: block;
+      }
     </style>
-</head>
+  </head>
 
-<body class="bg-[#f4f6f8] text-gray-800 min-h-screen font-sans">
+  <body class="bg-[#f4f6f8] text-gray-800 min-h-screen font-sans">
+    <header
+      class="bg-gradient-primary text-white p-4 flex justify-between items-center shadow-xl"
+    >
+      <h1 class="text-3xl font-extrabold">Luxride Admin</h1>
 
-    <!-- Header -->
-    <header class="bg-gradient-primary text-white p-4 flex justify-between items-center shadow-xl">
-        <h1 class="text-3xl font-extrabold">Luxride Admin</h1>
-        <!-- Profile and Settings Dropdown -->
+      <div class="flex items-center space-x-4">
+        <h4 class="text-lg">{{ request.user.full_name }}</h4>
         <div class="relative group cursor-pointer">
-            <img src="https://i.ibb.co/tYv8t4q/user-icon.png" class="w-14 h-14 rounded-full border-2 border-white"
-                alt="Admin" />
-            <div class="dropdown-menu absolute right-0 hidden bg-white text-gray-800 mt-2 rounded shadow w-32 z-50">
-                <a href="#" class="block px-4 py-2 hover:bg-[#f4c542]">Settings</a>
-                <a href="#" class="block px-4 py-2 hover:bg-[#f4c542]">Logout</a>
-            </div>
+          <img
+            src="https://i.ibb.co/tYv8t4q/user-icon.png"
+            class="w-14 h-14 rounded-full border-2 border-white"
+            alt="Admin"
+          />
+          <div
+            class="dropdown-menu absolute right-0 hidden bg-white text-gray-800 mt-2 rounded shadow w-32 z-50 group-hover:block"
+          >
+            <a href="#" class="block px-4 py-2 hover:bg-[#f4c542]">Settings</a>
+            <a
+              href="{% url 'logout' %}"
+              class="block px-4 py-2 hover:bg-[#f4c542]"
+              >Logout</a
+            >
+          </div>
         </div>
+      </div>
     </header>
 
-    <!-- Sidebar + Main -->
     <div class="flex flex-col md:flex-row min-h-[calc(100vh-64px)]">
+      <aside
+        class="w-full md:w-64 bg-[#16242e] text-white p-6 shadow-strong rounded-r-2xl"
+      >
+        <nav class="space-y-6">
+          <a
+            href="#"
+            class="block px-5 py-3 rounded-lg bg-hover sidebar-item"
+            data-target="dashboard-home"
+          >
+            <i class="fas fa-tachometer-alt"></i> Dashboard Home
+          </a>
+          <a
+            href="#"
+            class="block px-5 py-3 rounded-lg bg-hover sidebar-item"
+            data-target="manage-users"
+          >
+            <i class="fas fa-users"></i> Manage Users
+          </a>
+          <a
+            href="#"
+            class="block px-5 py-3 rounded-lg bg-hover sidebar-item"
+            data-target="manage-cars"
+          >
+            <i class="fas fa-car"></i> Manage Cars
+          </a>
+          <a
+            href="#"
+            class="block px-5 py-3 rounded-lg bg-hover sidebar-item"
+            data-target="borrowing-logs"
+          >
+            <i class="fas fa-book"></i> Borrowing Logs
+          </a>
+        </nav>
+      </aside>
 
-        <!-- Sidebar -->
-        <aside class="w-full md:w-64 bg-[#16242e] text-white p-6 shadow-strong rounded-r-2xl">
-            <!-- Sidebar Menu -->
-            <nav class="space-y-6">
-                <a href="#" class="block px-5 py-3 rounded-lg bg-hover sidebar-item" data-target="dashboard-home">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard Home
-                </a>
-                <a href="#" class="block px-5 py-3 rounded-lg bg-hover sidebar-item" data-target="manage-users">
-                    <i class="fas fa-users"></i> Manage Users
-                </a>
-                <a href="#" class="block px-5 py-3 rounded-lg bg-hover sidebar-item" data-target="manage-cars">
-                    <i class="fas fa-car"></i> Manage Cars
-                </a>
-                <a href="#" class="block px-5 py-3 rounded-lg bg-hover sidebar-item" data-target="borrowing-logs">
-                    <i class="fas fa-book"></i> Borrowing Logs
-                </a>
-            </nav>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="flex-1 p-6 bg-white rounded-l-2xl shadow-strong" id="main-content">
-            <!-- Dynamic Content here -->
-            <h2 class="text-2xl font-semibold text-accent mb-6">Welcome to the Admin Panel</h2>
-            <p class="text-lg">Manage the car rentals and users effectively. Select an option from the left to get
-                started.</p>
-        </main>
-
+      <main
+        class="flex-1 p-6 bg-white rounded-l-2xl shadow-strong"
+        id="main-content"
+      >
+        <h2 class="text-2xl font-semibold text-accent mb-6">
+          Welcome to the Admin Panel
+        </h2>
+        <p class="text-lg">
+          Manage the car rentals and users effectively. Select an option from
+          the left to get started.
+        </p>
+      </main>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-[#f4f6f8] text-center py-4 text-sm text-gray-500 border-t">
-        &copy; 2025 Luxride. All rights reserved.
+    <footer
+      class="bg-[#f4f6f8] text-center py-4 text-sm text-gray-500 border-t"
+    >
+      &copy; 2025 Luxride. All rights reserved.
     </footer>
 
     <script>
-        // Function to update the content of the main section dynamically
-        function loadContent(target) {
-            const contentMap = {
-                "dashboard-home": "<h2 class='text-2xl font-semibold text-accent mb-6'>Dashboard</h2><p>Dashboard content goes here...</p>",
-                "manage-users": "<h2 class='text-2xl font-semibold text-accent mb-6'>Manage Users</h2><p>Manage users content goes here...</p>",
-                "manage-cars": "<h2 class='text-2xl font-semibold text-accent mb-6'>Manage Cars</h2><p>Manage cars content goes here...</p>",
-                "borrowing-logs": "<h2 class='text-2xl font-semibold text-accent mb-6'>Borrowing Logs</h2><p>Borrowing logs content goes here...</p>",
-            };
-
-            // Set content based on the selected item
-            document.getElementById('main-content').innerHTML = contentMap[target] || "<p>Content not found.</p>";
-            localStorage.setItem('selectedMenu', target); // Store the selected menu item
+      function loadContent(target) {
+        const contentMap = {
+          "dashboard-home":
+            "<h2 class='text-2xl font-semibold text-accent mb-6'>Dashboard</h2><p>Dashboard content goes here...</p>",
+          "manage-users":
+            "<h2 class='text-2xl font-semibold text-accent mb-6'>Manage Users</h2><p>Manage users content goes here...</p>",
+          "manage-cars":
+            "<h2 class='text-2xl font-semibold text-accent mb-6'>Manage Cars</h2><p>Manage cars content goes here...</p>",
+          "borrowing-logs":
+            "<h2 class='text-2xl font-semibold text-accent mb-6'>Borrowing Logs</h2><p>Borrowing logs content goes here...</p>",
+        };
+        if (target === "dashboard-home") {
+          fetch("/admin/dashboard/main-content")
+            .then((response) => response.text())
+            .then((data) => {
+              document.getElementById("main-content").innerHTML = data;
+            })
+            .catch((error) => {
+              console.error("Error loading admin_main_content.html:", error);
+              document.getElementById(target).innerHTML =
+                "<p>Error loading content.</p>";
+            });
+        } else {
+          // Default content from contentMap for other targets
+          document.getElementById("main-content").innerHTML =
+            contentMap[target] || "<p>Content not found.</p>";
         }
 
-        // Event listeners for sidebar items
-        document.querySelectorAll('.sidebar-item').forEach(item => {
-            item.addEventListener('click', (event) => {
-                const target = event.target.closest('.sidebar-item').dataset.target;
-                loadContent(target);
-            });
-        });
+        document.getElementById("main-content").innerHTML =
+          contentMap[target] || "<p>Content not found.</p>";
+        localStorage.setItem("selectedMenu", target);
+      }
 
-        // Check localStorage to set the default state
-        document.addEventListener('DOMContentLoaded', () => {
-            const selectedMenu = localStorage.getItem('selectedMenu') || 'dashboard-home'; // Default to dashboard-home
-            loadContent(selectedMenu);
+      document.querySelectorAll(".sidebar-item").forEach((item) => {
+        item.addEventListener("click", (event) => {
+          const target = event.target.closest(".sidebar-item").dataset.target;
+          loadContent(target);
+        });
+      });
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const selectedMenu =
+          localStorage.getItem("selectedMenu") || "dashboard-home";
+        loadContent(selectedMenu);
+      });
+
+      document
+        .querySelector(".group")
+        .addEventListener("click", function (event) {
+          const dropdownMenu =
+            event.currentTarget.querySelector(".dropdown-menu");
+          dropdownMenu.classList.toggle("hidden");
         });
     </script>
-
-</body>
-
+  </body>
 </html>

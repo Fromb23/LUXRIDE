@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.contrib.auth import get_user_model
 
+
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, full_name, password=None, **extra_fields):
         if not email:
@@ -16,6 +17,7 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         return self.create_user(email, full_name, password, **extra_fields)
+
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     full_name = models.CharField(max_length=100, default="Unknown")
@@ -33,28 +35,44 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.full_name
 
+
 class Car(models.Model):
+    STATUS_CHOICES = [
+        ('available', 'Available'),
+        ('borrowed', 'Borrowed'),
+        ('pending', 'Pending'),
+    ]
     make = models.CharField(max_length=100)
     model = models.CharField(max_length=100)
     year = models.IntegerField()
     available = models.BooleanField(default=True)
+    image = models.ImageField(upload_to='car_images/', null=True, blank=True)
+    status = models.CharField(
+        max_length=10, choices=STATUS_CHOICES, default='available')
     rental_price = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
         return f"{self.make} {self.model} ({self.year})"
-    
+
 
 class BorrowedCar(models.Model):
+    STATUS_CHOICES = [
+        ('available', 'Available'),
+        ('borrowed', 'Borrowed'),
+        ('pending', 'Pending'),
+    ]
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     car = models.ForeignKey(Car, on_delete=models.CASCADE)
     borrow_date = models.DateTimeField(auto_now_add=True)
     return_date = models.DateTimeField(null=True, blank=True)
     rental_price = models.DecimalField(max_digits=10, decimal_places=2)
     current_step = models.PositiveIntegerField(default=1)
+    status = models.CharField(
+        max_length=50, choices=STATUS_CHOICES, default='available')
 
     def __str__(self):
         return f"{self.user.full_name} borrowed {self.car.make} {self.car.model}"
-    
+
     def is_borrowed(self):
         """Check if the car is currently borrowed."""
         return self.return_date is None

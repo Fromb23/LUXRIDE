@@ -1,0 +1,61 @@
+<div class="p-6">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-2xl font-bold">Manage Cars</h2>
+    <button
+      onclick="openCreateCarModal()"
+      class="bg-blue-600 text-white px-4 py-2 rounded"
+    >
+      + Create Car
+    </button>
+  </div>
+
+  {% if cars %}
+  <table class="min-w-full table-auto border-collapse">
+    <thead>
+      <tr class="bg-gray-200">
+        <th class="border px-4 py-2">Image</th>
+        <th class="border px-4 py-2">Make</th>
+        <th class="border px-4 py-2">Model</th>
+        <th class="border px-4 py-2">Year</th>
+        <th class="border px-4 py-2">Available</th>
+        <th class="border px-4 py-2">Price</th>
+        <th class="border px-4 py-2">Status</th>
+        <th class="border px-4 py-2">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for car in cars %}
+      <tr>
+        <td class="border px-4 py-2">
+          {% if car.image %}
+          <img
+            src="{{ car.image.url }}"
+            alt="Car Image"
+            class="w-16 h-16 object-cover"
+          />
+          {% else %}
+          <span>No image</span>
+          {% endif %}
+        </td>
+        <td class="border px-4 py-2">{{ car.make }}</td>
+        <td class="border px-4 py-2">{{ car.model }}</td>
+        <td class="border px-4 py-2">{{ car.year }}</td>
+        <td class="border px-4 py-2">{{ car.available }}</td>
+        <td class="border px-4 py-2">${{ car.rental_price }}</td>
+        <td class="border px-4 py-2">{{ car.status }}</td>
+        <td class="border px-4 py-2 space-x-2">
+          <!-- icons as emojis for now -->
+          <a href="{% url 'edit_car' car.id %}" class="text-blue-600">✏️</a>
+          <a href="{% url 'delete_car' car.id %}" class="text-red-600">🗑️</a>
+          <a href="{% url 'update_status' car.id %}" class="text-green-600"
+            >🔄</a
+          >
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No cars available. Add one using the "Create Car" button.</p>
+  {% endif %}
+</div>
