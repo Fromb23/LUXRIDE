@@ -1,9 +1,153 @@
-<div class="max-w-4xl mx-auto p-4">
-  <img src="{{ car.image.url }}" alt="{{ car.name }}" class="w-full rounded-xl mb-4" />
-  <h2 class="text-3xl font-bold text-[#3cab4b] mb-2">{{ car.make }}</h2>
-  <p class="text-lg mb-4">KES {{ car.rental_price }}/day</p>
+<!DOCTYPE html>
+<html lang="en">
 
-  <p class="text-gray-700 mb-6">{{ car.description }}</p>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ car.make }} {{ car.model }} | Luxride</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            poppins: ['Poppins', 'sans-serif'],
+          },
+          colors: {
+            luxride: {
+              primary: '#3cab4b',
+              dark: '#2a7a35',
+              light: '#e6f7e8',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
 
-  <a href="{% url 'user_dashboard' %}" class="bg-[#3cab4b] text-white px-4 py-2 rounded">Back</a>
-</div>
+<body class="font-poppins bg-gray-50">
+  <div class="min-h-screen">
+    <!-- Main Content -->
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <!-- Car Card -->
+      <div class="bg-white rounded-2xl shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl">
+        <div class="relative h-64 sm:h-80 md:h-96 lg:h-[500px] overflow-hidden group">
+          <img src="{{ car.image.url }}" alt="{{ car.name }}"
+            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+          <div class="absolute bottom-4 left-4">
+            <span class="bg-luxride-primary text-white px-3 py-1 rounded-full text-sm font-medium">Featured</span>
+          </div>
+        </div>
+
+        <!-- Car Info -->
+        <div class="p-6 sm:p-8">
+          <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+            <div>
+              <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">{{ car.make }} {{ car.model }}</h1>
+              <p class="text-luxride-primary text-xl font-semibold mt-1">
+                KES {{ car.rental_price }} <span class="text-gray-500 text-sm font-normal">/ day</span>
+              </p>
+            </div>
+            <a class="bg-luxride-primary hover:bg-luxride-dark text-white px-6 py-2 rounded-lg font-medium transition-colors duration-300"
+              href="{% url 'user_dashboard' %}?step=1">
+              Book Now
+            </a>
+          </div>
+
+          <!-- Divider -->
+          <div class="border-b border-gray-200 my-6"></div>
+
+          <!-- Key Specs -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+            <div class="bg-luxride-light p-4 rounded-lg flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-luxride-primary mr-2" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <div>
+                <p class="text-gray-500 text-sm">Power</p>
+                <p class="font-medium">300HP</p>
+              </div>
+            </div>
+            <div class="bg-luxride-light p-4 rounded-lg flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-luxride-primary mr-2" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+              </svg>
+              <div>
+                <p class="text-gray-500 text-sm">Transmission</p>
+                <p class="font-medium">Automatic</p>
+              </div>
+            </div>
+            <div class="bg-luxride-light p-4 rounded-lg flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-luxride-primary mr-2" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <p class="text-gray-500 text-sm">0-100 km/h</p>
+                <p class="font-medium">4.2s</p>
+              </div>
+            </div>
+            <div class="bg-luxride-light p-4 rounded-lg flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-luxride-primary mr-2" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <div>
+                <p class="text-gray-500 text-sm">Location</p>
+                <p class="font-medium">Nairobi</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="mb-8">
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">Description</h3>
+            <p class="text-gray-700 leading-relaxed">{{ car.description }}</p>
+          </div>
+
+          <!-- Features -->
+          <div class="mb-8">
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">Features</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-luxride-primary mr-2" viewBox="0 0 20 20"
+                  fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd" />
+                </svg>
+                <span>Air Conditioning</span>
+              </div>
+              <!-- More features... -->
+            </div>
+          </div>
+
+          <!-- Back Button -->
+          <div class="flex justify-end">
+            <a href="{% url 'user_dashboard' %}"
+              class="inline-flex items-center text-luxride-primary hover:text-luxride-dark font-medium transition-colors duration-300">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                  d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                  clip-rule="evenodd" />
+              </svg>
+              Back to Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
