@@ -62,7 +62,6 @@ def admin_dashboard(request):
         'recent_borrows': recent_borrows,
         'ongoing_borrows': ongoing_borrows,
     }
-
     return render(request, 'dashboard/admin_dashboard.html', context)
 
 
@@ -72,6 +71,9 @@ def admin_main_content(request):
 
 def manage_cars(request):
     cars = Car.objects.all()
+    for car in cars:
+        print(car.image)
+        print(car.image.url)
     return render(request, 'dashboard/manage_cars.html', {'cars': cars})
 
 
@@ -81,7 +83,7 @@ def create_car(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Car created successfully.')
-            return redirect('manage_cars')
+            return redirect('admin_dashboard')
     else:
         form = CarForm()
     return render(request, 'dashboard/create_car.html', {'form': form})
@@ -107,6 +109,12 @@ def delete_car(request, car_id):
         car.delete()
         messages.success(request, 'Car deleted successfully.')
         return redirect('manage_cars')
+
+
+def car_details(request, car_id):
+    car = get_object_or_404(Car, id=car_id)
+    print(car)
+    return render(request, 'dashboard/partials/car_details.html', {'car': car})
 
 
 def update_status(request, car_id):
@@ -195,6 +203,7 @@ def user_dashboard_view(request):
     borrowed_car = BorrowedCar.objects.filter(user=request.user).first()
 
     current_step = int(request.GET.get('step', 1))
+    cars = Car.objects.all()
     step_range = range(1, 8)
     print(f"borrowed_car: {borrowed_car}")
     print(list(step_range))
@@ -209,6 +218,7 @@ def user_dashboard_view(request):
         'current_step': current_step,
         'step_range': step_range,
         'is_borrowed': is_borrowed,
+        'cars': cars,
     })
 
 

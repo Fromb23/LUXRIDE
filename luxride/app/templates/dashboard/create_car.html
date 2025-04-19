@@ -5,6 +5,7 @@
   method="post"
   enctype="multipart/form-data"
   class="space-y-6 max-w-xl mx-auto"
+  action="{% url 'create_car' %}"
 >
   {% csrf_token %}
 
@@ -90,23 +91,3 @@
     </button>
   </div>
 </form>
-
-<!-- <script>
-  function previewImage(event) {
-    if (event.target.files && event.target.files[0]) {
-      var reader = new FileReader();
-
-      reader.onload = function (e) {
-        var imagePreview = document.getElementById("image-preview");
-        var previewContainer = document.getElementById(
-          "image-preview-container"
-        );
-
-        imagePreview.src = e.target.result;
-        previewContainer.classList.remove("hidden");
-      };
-
-      reader.readAsDataURL(event.target.files[0]);
-    }
-  }
-</script> -->

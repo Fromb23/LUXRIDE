@@ -57,7 +57,8 @@ class Car(models.Model):
     model = models.CharField(max_length=100)
     year = models.IntegerField()
     available = models.BooleanField(default=True)
-    image = models.ImageField(upload_to='car_images/', null=True, blank=True)
+    image = models.ImageField(
+        upload_to='media/car_images/', null=True, blank=True)
     status = models.CharField(
         max_length=10, choices=STATUS_CHOICES, default='available')
     rental_price = models.DecimalField(max_digits=10, decimal_places=2)

@@ -1,4 +1,6 @@
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 from . import views
 
 urlpatterns = [
@@ -18,6 +20,8 @@ urlpatterns = [
     path('cars/<int:car_id>/delete/', views.delete_car, name='delete_car'),
     path('cars/<int:car_id>/status/', views.update_status,
          name='update_status'),
+    path('dashboard/car_details/<int:car_id>/',
+         views.car_details, name='car_details'),
 
     # user management
     path('admin/dashboard/users/',
@@ -28,3 +32,7 @@ urlpatterns = [
          views.borrowed_logs, name='borrowed_logs'),
 
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)

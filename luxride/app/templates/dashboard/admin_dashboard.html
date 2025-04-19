@@ -47,10 +47,12 @@
     <header
       class="bg-gradient-primary text-white p-4 flex justify-between items-center shadow-xl"
     >
-      <h1 class="text-3xl font-extrabold">Luxride Admin</h1>
+      <h1 class="text-xl md:text-3xl font-medium md:font-extrabold">
+        Luxride Admin
+      </h1>
 
       <div class="flex items-center space-x-4">
-        <h4 class="text-lg">{{ request.user.full_name }}</h4>
+        <h4 class="text-xm md:text-lg">{{ request.user.full_name }}</h4>
         <div class="relative group cursor-pointer">
           <img
             src="https://i.ibb.co/tYv8t4q/user-icon.png"
@@ -73,32 +75,28 @@
 
     <div class="flex flex-col md:flex-row min-h-[calc(100vh-64px)]">
       <aside
-        class="w-full md:w-64 bg-[#16242e] text-white p-6 shadow-strong rounded-r-2xl"
+        class="w-full md:w-64 bg-[#16242e] text-white md:p-6 p-3 shadow-strong"
       >
-        <nav class="space-y-6">
+        <nav class="md:space-y-6 space-y-2">
           <a
-            href="#"
             class="block px-5 py-3 rounded-lg bg-hover sidebar-item"
             data-target="dashboard-home"
           >
             <i class="fas fa-tachometer-alt"></i> Dashboard Home
           </a>
           <a
-            href="#"
             class="block px-5 py-3 rounded-lg bg-hover sidebar-item"
             data-target="manage-users"
           >
             <i class="fas fa-users"></i> Manage Users
           </a>
           <a
-            href="#"
             class="block px-5 py-3 rounded-lg bg-hover sidebar-item"
             data-target="manage-cars"
           >
             <i class="fas fa-car"></i> Manage Cars
           </a>
           <a
-            href="#"
             class="block px-5 py-3 rounded-lg bg-hover sidebar-item"
             data-target="borrowing-logs"
           >
@@ -107,10 +105,7 @@
         </nav>
       </aside>
 
-      <main
-        class="flex-1 p-6 bg-white rounded-l-2xl shadow-strong"
-        id="main-content"
-      >
+      <main class="flex-1 p-6 bg-white shadow-strong" id="main-content">
         <h2 class="text-2xl font-semibold text-accent mb-6">
           Welcome to the Admin Panel
         </h2>
