@@ -12,12 +12,11 @@
 <body class="flex flex-col min-h-screen bg-[#f3f4f6] text-gray-800">
   <header class="bg-[#7c8991] text-white p-4 flex justify-between items-center shadow">
     <h1 class="text-xl font-semibold">Luxride Dashboard</h1>
-    <p>Current Borrowed Car: {{ is_borrowed }}</p>
 
     <div class="relative">
       <button id="profileBtn" class="flex items-center gap-2 focus:outline-none">
         <img src="https://via.placeholder.com/32" alt="Profile" class="w-8 h-8 rounded-full" />
-        <span class="text-sm">Profile</span>
+        <span class="text-sm">{{ request.user.full_name }}</span>
       </button>
       <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-40 bg-white text-gray-800 rounded shadow-md z-10">
         <a href="#" class="block px-4 py-2 hover:bg-gray-100">Settings</a>
@@ -26,11 +25,7 @@
     </div>
   </header>
 
-  <!-- Main Content Area -->
   <div class="flex flex-1">
-    <!-- Sidebar (if needed, for now we skip) -->
-
-    <!-- Main -->
     <main class="flex-1 p-6 w-full md:w-1/2">
       {% if not is_borrowed and not request.GET.step %}
       <div class="bg-white rounded-xl mb-4 pl-2 text-center">
@@ -39,10 +34,8 @@
         </h2>
 
         <div id="carSlider" class="relative w-full h-80 overflow-hidden">
-          <!-- Slides Wrapper (loops via JavaScript) -->
           <div class="flex h-full transition-transform duration-500 ease-in-out">
             {% for car in cars %}
-            <!-- Dynamic Slide (clickable, loops via Django 'for') -->
             <div class="w-full h-full flex-shrink-0 bg-cover bg-center cursor-pointer"
               style="background-image: url('{{ car.image.url }}');" data-car-id="{{ car.id }}">
               <div class="h-full flex items-end bg-black bg-opacity-40 p-6">
@@ -55,7 +48,6 @@
             {% endfor %}
           </div>
 
-          <!-- Navigation Arrows (Tailwind-styled) -->
           <button id="prevBtn"
             class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/75">
             ←
@@ -84,9 +76,7 @@
         {% endif %}
       </div>
       {% else %}
-      <!-- Steps Navigation -->
       <div class="space-y-6 md:space-y-0">
-        <!-- Mobile/Tablet Steps (Vertical) -->
         <div class="md:hidden">
           <div class="bg-white p-6 rounded-lg shadow border-l-4 border-[#3cab4b]">
             <h3 class="text-lg font-semibold text-[#3cab4b]">
@@ -112,8 +102,7 @@
         <div class="hidden md:flex items-center justify-center">
           <div class="flex items-center">
             {% for i in step_range %}
-            <div class="flex items-center">
-              <!-- Step Circle -->
+            <div class="flex items-center md:mb-4">
               {% if current_step >= i %}
               <a href="?step={{ i }}" class="flex flex-col items-center group">
                 <div
@@ -142,7 +131,6 @@
         </div>
 
         <!-- Step Content -->
-        <div class="mt-8 bg-white p-6 rounded-lg shadow"></div>
         {% include 'dashboard/step_contents.html' %}
       </div>
       {% endif %}

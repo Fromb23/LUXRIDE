@@ -1,9 +1,6 @@
-<!-- car_booking_steps.html -->
-<div class="mt-8 bg-white p-6 rounded-lg shadow">
+<div class="mt-0 bg-white p-6 rounded-lg shadow">
     {% if current_step == 1 %}
-    <h3 class="text-xl font-semibold mb-4">Step 1: Confirm Personal Information</h3>
-    <p>Choose from our available luxury vehicles.</p>
-    <!-- Add your step 1 content here -->
+    {% include 'dashboard/steps/step1.html' %}
 
     {% elif current_step == 2 %}
     <h3 class="text-xl font-semibold mb-4">Step 2: Rental Details</h3>

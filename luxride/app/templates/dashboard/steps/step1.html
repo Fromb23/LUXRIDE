@@ -1,0 +1,47 @@
+<div class="mt-0 bg-white p-6 rounded-lg shadow">
+
+    <!-- Personal Information Form -->
+    <form action="{% url 'dashboard_step1' %}" method="POST" class="mt-0 space-y-4">
+        {% csrf_token %}
+
+        {% if error %}
+        <p class="text-red-500 text-sm">{{ error }}</p>
+        {% endif %}
+
+        <div class="flex flex-col">
+            <label for="full_name" class="text-sm font-medium text-gray-700">Full Name<span
+                    class="text-red-500">*</span></label>
+            <input type="text" id="full_name" name="full_name" value="{{ full_name|default:request.user.full_name }}"
+                required
+                class="border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+
+        <div class="flex flex-col">
+            <label for="email" class="text-sm font-medium text-gray-700">Email Address<span
+                    class="text-red-500">*</span></label>
+            <input type="email" id="email" name="email" value="{{ email|default:request.user.email }}" required
+                class="border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+
+        <div class="flex flex-col">
+            <label for="phone" class="text-sm font-medium text-gray-700">Phone Number<span
+                    class="text-red-500">*</span></label>
+            <input type="tel" id="phone" name="phone_number"
+                value="{{ phone_number|default:request.user.phone_number }}" required
+                class="border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+
+        <div class="flex flex-col">
+            <label for="driving_license" class="text-sm font-medium text-gray-700">Driving License Number<span
+                    class="text-red-500">*</span></label>
+            <input type="text" id="driving_license" name="driving_license_no"
+                value="{{ driving_license_no|default:request.user.driving_license_no }}" required
+                class="border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+
+        <button type="submit" class="bg-[#3cab4b] hover:bg-green-700 text-white px-4 py-2 rounded mt-4">
+            Next
+        </button>
+    </form>
+
+</div>

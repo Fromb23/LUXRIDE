@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
 from .forms import CarForm
 from datetime import datetime
 from django.http import HttpRequest
@@ -220,6 +221,27 @@ def user_dashboard_view(request):
         'is_borrowed': is_borrowed,
         'cars': cars,
     })
+
+# car application steps
+
+
+def dashboard_step1(request):
+    print("Step 1 view called")
+    step = int(request.GET.get('step', 1))
+    if request.method == 'POST' and step == 1:
+        full_name = request.POST.get('full_name')
+        email = request.POST.get('email')
+        phone_number = request.POST.get('phone_number')
+        driving_license_no = request.POST.get('driving_license_no')
+
+        if not all([full_name, email, phone_number, driving_license_no]):
+            messages.error(request, 'All fields are required.')
+            return redirect('user_dashboard', {'current_step': step,
+                                               'error': 'All fields are required.'})
+
+        return redirect(reverse('user_dashboard') + '?step=2')
+
+    return render(request, 'dashboard/steps/step1.html', {'current_step': step})
 
 
 def logout_view(request):

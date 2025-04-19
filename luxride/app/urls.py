@@ -31,6 +31,9 @@ urlpatterns = [
     path('admin/dashboard/borrowed-logs/',
          views.borrowed_logs, name='borrowed_logs'),
 
+    # steps for car application
+    path('dashboard/step1', views.dashboard_step1, name='dashboard_step1'),
+
 ]
 
 if settings.DEBUG:
