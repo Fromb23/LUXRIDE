@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponseBadRequest
 from django.http import JsonResponse
 from django.urls import reverse
 from .forms import CarForm
@@ -255,11 +256,15 @@ def user_dashboard_view(request):
         user.current_step = current_step
         user.save()
 
+    rental_price = car.rental_price if car else 0
+    days = request.GET.get('days', 1)
+    total_amount = rental_price * int(days) if car else 0
+    print(f"Total amount: {total_amount}")
     borrowed_car = BorrowedCar.objects.filter(user=user).first()
     is_borrowed = borrowed_car.is_borrowed() if borrowed_car else False
 
     # === Navigation button logic ===
-    step_range = range(1, 7)
+    step_range = range(1, 6)
     show_prev = current_step > 1
     hide_next = current_step in [1, 2, 4]
     show_next = (current_step < step_range[-1]) and not hide_next
@@ -268,7 +273,7 @@ def user_dashboard_view(request):
     return render(request, 'dashboard/user_dashboard.html', {
         'borrowed_car': borrowed_car,
         'current_step': current_step,
-        'step_range': range(1, 7),
+        'step_range': step_range,
         'is_borrowed': is_borrowed,
         'cars': Car.objects.all(),
         'car': car,
@@ -276,6 +281,8 @@ def user_dashboard_view(request):
         'show_next': show_next,
         'hide_next': hide_next,
         'disable_next': disable_next,
+        'days_range': range(1, 16),
+        'total_amount': total_amount,
     })
 
 
@@ -359,10 +366,11 @@ def initiate_mpesa_payment(request):
     if request.method == 'POST':
         try:
             phone = request.POST.get('phone_number')
+            car_id = request.POST.get('car_id')
+            car = Car.objects.get(id=car_id)
+
             if not phone:
                 raise ValueError("Phone number is required")
-
-            print(f"Initiating M-Pesa STK for {phone}...")
 
             user = request.user
             user.payment_status = CustomUser.PaymentStatus.PENDING
@@ -394,7 +402,28 @@ def agree_terms(request):
     if not request.user.has_agreed_terms:
         request.user.has_agreed_terms = True
         request.user.save()
+
     return redirect('/dashboard/?step=5')
+
+
+@login_required
+def finalize_booking(request):
+    if request.method == 'POST':
+        car_id = request.user.selected_car_id
+
+        if not car_id:
+            return HttpResponseBadRequest("Car ID not found.")
+
+        car = get_object_or_404(Car, id=car_id)
+
+        BorrowedCar.objects.create(
+            user=request.user,
+            car=car,
+            rental_price=car.rental_price,
+            status='pending'
+        )
+
+        return redirect('/')
 
 
 def logout_view(request):

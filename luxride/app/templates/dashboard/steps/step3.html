@@ -1,25 +1,51 @@
 <div class="bg-gray-100 p-6 rounded-lg shadow-md max-w-xl mx-auto space-y-6">
     <h3 class="text-xl font-bold text-center text-gray-700">Confirm Your Payment</h3>
 
-    <div class="bg-white p-4 rounded-lg shadow text-center text-gray-700 text-base font-medium">
-        Amount to pay: <span class="text-green-600 font-semibold">Ksh {{ car.rental_price }}</span>/day
+    <!-- Payment Method Selection -->
+    <div class="bg-white p-4 rounded shadow">
+        <h4 class="font-semibold text-gray-800 mb-2">Choose Payment Method</h4>
+
+        <!-- Radio buttons to select payment method -->
+        <label for="mpesa">
+            <input type="radio" id="mpesa" name="payment_method" value="mpesa" class="mr-2"> Pay with M-Pesa
+        </label>
+        <label for="card">
+            <input type="radio" id="card" name="payment_method" value="card" class="mr-2"> Pay with Card
+        </label>
     </div>
 
+    <!-- Payment Forms -->
     <!-- M-Pesa Option -->
-    <div class="bg-white p-4 rounded shadow">
+    <div class="bg-white p-4 rounded shadow mpesa-form" style="display: none;">
         <h4 class="font-semibold text-gray-800 mb-2">Pay with M-Pesa</h4>
         <form method="post" action="{% url 'initiate_mpesa_payment' %}">
             {% csrf_token %}
+
+            <!-- Rental Days Dropdown -->
+            <div class="bg-white p-4 rounded shadow">
+                <label for="days" class="block text-gray-700 font-medium mb-2">Select rental days</label>
+                <select id="days" name="days" class="w-full p-2 border border-gray-300 rounded mb-4" required>
+                    {% for i in days_range %}
+                    <option value="{{ i }}">{{ i }} day{{ i|pluralize }}</option>
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Amount to Pay -->
+            <div class="bg-white p-4 rounded-lg shadow text-center text-gray-700 text-base font-medium">
+                Amount: <span class="text-green-600 font-semibold" id="total-amount">Ksh {{ total_amount }} / day</span>
+            </div>
+
             <input type="tel" name="phone_number" placeholder="Enter Phone Number"
                 class="w-full p-2 border border-gray-300 rounded mb-2" required>
             <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded">Pay via
                 M-Pesa</button>
         </form>
-        <div id="payment-message" class="text-center text-sm text-green-600 mt-2 hidden"></div>
     </div>
 
     <!-- Card Option -->
-    <div class="bg-white p-4 rounded shadow">
+    <div class="bg-white p-4 rounded shadow card-form" style="display: none;">
         <h4 class="font-semibold text-gray-800 mb-2">Pay with Card</h4>
         <form method="post" action="{% url 'process_card_payment' %}">
             {% csrf_token %}
@@ -41,3 +67,32 @@
         </span>
     </div>
 </div>
+
+<!-- JavaScript to Show/Hide Payment Forms Based on Selection -->
+<script>
+    // Get all payment method radio buttons
+    const mpesaRadio = document.getElementById('mpesa');
+    const cardRadio = document.getElementById('card');
+
+    // Get the forms for M-Pesa and Card
+    const mpesaForm = document.querySelector('.mpesa-form');
+    const cardForm = document.querySelector('.card-form');
+
+    // Function to toggle the payment forms
+    function togglePaymentForm() {
+        if (mpesaRadio.checked) {
+            mpesaForm.style.display = 'block';
+            cardForm.style.display = 'none';
+        } else if (cardRadio.checked) {
+            cardForm.style.display = 'block';
+            mpesaForm.style.display = 'none';
+        }
+    }
+
+    // Add event listeners to radio buttons to toggle form visibility
+    mpesaRadio.addEventListener('change', togglePaymentForm);
+    cardRadio.addEventListener('change', togglePaymentForm);
+
+    // Initially run the function to set the correct form visibility
+    togglePaymentForm();
+</script>

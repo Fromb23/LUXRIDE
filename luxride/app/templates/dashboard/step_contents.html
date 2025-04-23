@@ -11,8 +11,13 @@
     {% include 'dashboard/steps/step3.html' %}
 
     {% elif current_step == 4 %}
-    <h3 class="text-xl font-semibold mb-4">Step 4: Confirmation</h3>
+    <h3 class="text-xl font-semibold mb-4">Step 4: Terms and Conditions</h3>
     {% include 'dashboard/steps/step4.html' %}
+
+    {% elif current_step == 5 %}
+    <h3 class="text-xl font-semibold mb-4">Step 5: Booking Confirmation</h3>
+    {% include 'dashboard/steps/final_step.html' %}
+
     {% endif %}
 
     <!-- Navigation Buttons -->

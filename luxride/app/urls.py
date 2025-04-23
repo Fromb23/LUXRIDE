@@ -41,6 +41,7 @@ urlpatterns = [
     path('card-payment/', views.process_card_payment,
          name='process_card_payment'),
     path('agree-terms/', views.agree_terms, name='agree_terms'),
+    path('finalize-booking/', views.finalize_booking, name='finalize_booking'),
 ]
 
 if settings.DEBUG:
