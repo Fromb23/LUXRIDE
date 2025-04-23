@@ -52,7 +52,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return self.full_name
 
     def save(self, *args, **kwargs):
-        if self.user.is_superuser:
+        if self.is_superuser:
             self.current_step = None
         super(CustomUser, self).save(*args, **kwargs)
 
