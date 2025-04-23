@@ -1,0 +1,43 @@
+{% if car %}
+<div class="max-w-2xl mx-auto bg-white rounded-3xl shadow-lg p-6 md:p-8 space-y-6 transition-all duration-300">
+
+    <!-- Title -->
+    <h2 class="text-2xl font-semibold text-gray-900 tracking-tight"> Confirm Your Selected Car</h2>
+
+    <!-- Car Image -->
+    <div class="relative group">
+        <img src="{{ car.image.url }}" alt="{{ car.model }}"
+            class="w-full h-64 object-cover rounded-xl transition-transform duration-500 group-hover:scale-105 shadow-sm">
+        <span class="absolute bottom-2 right-2 bg-green-600 text-white text-xs px-3 py-1 rounded-full shadow">
+            {{ car.make }}
+        </span>
+    </div>
+
+    <!-- Car Details -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-gray-700 text-sm md:text-base">
+        <p><strong>Model:</strong> {{ car.model }}</p>
+        <p><strong>Year:</strong> {{ car.year }}</p>
+        <p><strong>Color:</strong> {{ car.color }}</p>
+        <p><strong>Available:</strong> {{ car.available|yesno:"Yes,No" }}</p>
+        <p><strong>Status:</strong> {{ car.status }}</p>
+        <p><strong>Price/Day:</strong> <span class="text-green-700 font-semibold">Ksh {{ car.rental_price }}</span></p>
+        <p class="col-span-2"><strong>Description:</strong> {{ car.description }}</p>
+    </div>
+
+    <!-- Confirmation Form -->
+    <form action="#" method="POST" class="space-y-4">
+        {% csrf_token %}
+        <label class="flex items-start gap-3">
+            <input type="checkbox" name="confirm_car" required class="accent-green-600 mt-1">
+            <span class="text-sm text-gray-600">I confirm this is the car I want to hire</span>
+        </label>
+
+        <button type="submit"
+            class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 rounded-lg shadow-md transition">
+            Confirm & Continue
+        </button>
+    </form>
+</div>
+{% else %}
+<p class="text-center text-gray-600">No car selected yet.</p>
+{% endif %}

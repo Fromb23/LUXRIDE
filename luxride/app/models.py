@@ -32,6 +32,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     phone_number = models.CharField(max_length=15, blank=True)
     driving_license_no = models.CharField(max_length=50, unique=True)
     is_superuser = models.BooleanField(default=False)
+    current_step = models.PositiveIntegerField(default=1)
+    selected_car = models.ForeignKey(
+        'Car', on_delete=models.SET_NULL, null=True, blank=True)
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
@@ -63,6 +66,7 @@ class Car(models.Model):
         max_length=10, choices=STATUS_CHOICES, default='available')
     rental_price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(blank=True, null=True)
+    color = models.CharField(max_length=30, default='Unknown')
 
     def __str__(self):
         return f"{self.make} {self.model} ({self.year})"
@@ -79,7 +83,6 @@ class BorrowedCar(models.Model):
     borrow_date = models.DateTimeField(auto_now_add=True)
     return_date = models.DateTimeField(null=True, blank=True)
     rental_price = models.DecimalField(max_digits=10, decimal_places=2)
-    current_step = models.PositiveIntegerField(default=1)
     status = models.CharField(
         max_length=50, choices=STATUS_CHOICES, default='available')
 

@@ -11,7 +11,7 @@
 
 <body class="flex flex-col min-h-screen bg-[#f3f4f6] text-gray-800">
   <header class="bg-[#7c8991] text-white p-4 flex justify-between items-center shadow">
-    <h1 class="text-xl font-semibold">Luxride Dashboard</h1>
+    <a class="text-xl font-semibold " href="/dashboard">Luxride Dashboard</a>
 
     <div class="relative">
       <button id="profileBtn" class="flex items-center gap-2 focus:outline-none">
@@ -60,16 +60,19 @@
       </div>
 
       <div class="bg-white p-8 rounded-xl shadow text-center">
-        <p class="text-gray-600 mb-6">
-          You haven't borrowed a car yet. Get started below.
-        </p>
 
-        {% if borrowed_car and borrowed_car.current_step and borrowed_car.is_borrowed %}
-        <a href="?step={{ borrowed_car.current_step }}"
+
+        {% if current_step > 1 %}
+        <p>to hire a car proceed from where you left</p>
+        <a href="?step={{ current_step }}"
           class="inline-block bg-[#3cab4b] text-white px-6 py-2 rounded hover:bg-green-700 transition">
+
           Resume Car Booking
         </a>
         {% else %}
+        <p class="text-gray-600 mb-6">
+          You haven't borrowed a car yet. Get started below.
+        </p>
         <a href="?step=1" class="inline-block bg-[#3cab4b] text-white px-6 py-2 rounded hover:bg-green-700 transition">
           Get Started
         </a>
@@ -89,7 +92,7 @@
             {% if current_step == 1 %}
             <p>Confirm Personal Information</p>
             {% elif current_step == 2 %}
-            <p>Rental details</p>
+            <p>Confirm Car Details</p>
             {% elif current_step == 3 %}
             <p>Payment information</p>
             {% elif current_step == 4 %}

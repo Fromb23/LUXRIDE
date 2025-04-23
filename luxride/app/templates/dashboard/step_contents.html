@@ -3,9 +3,8 @@
     {% include 'dashboard/steps/step1.html' %}
 
     {% elif current_step == 2 %}
-    <h3 class="text-xl font-semibold mb-4">Step 2: Rental Details</h3>
-    <p>Provide your rental period and other details.</p>
-    <!-- Add your step 2 content here -->
+    <h3 class="text-xl font-semibold mb-4">Step 2: Confirm Car Details</h3>
+    {% include 'dashboard/steps/step2.html' %}
 
     {% elif current_step == 3 %}
     <h3 class="text-xl font-semibold mb-4">Step 3: Payment Information</h3>
@@ -20,23 +19,22 @@
 
     <!-- Navigation Buttons -->
     <div class="flex justify-between mt-6">
-        <!-- Hide Previous button on Step 1 -->
         {% if current_step > 1 %}
         <a href="?step={{ current_step|add:'-1' }}"
             class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded">
             Previous
         </a>
         {% else %}
-        <span class="invisible"></span> <!-- Empty placeholder -->
+        <span class="invisible"></span>
         {% endif %}
 
-        <!-- Hide Next button on Step 1 -->
+
         {% if current_step > 1 and current_step < step_range|last %} <a href="?step={{ current_step|add:'1' }}"
             class="bg-[#3cab4b] hover:bg-green-700 text-white px-4 py-2 rounded">
             Next
             </a>
             {% elif current_step == 1 %}
-            <span class="invisible"></span> <!-- Hide Next on Step 1 -->
+            <span class="invisible"></span>
             {% else %}
             <span class="bg-gray-100 text-gray-400 px-4 py-2 rounded cursor-not-allowed">
                 Next

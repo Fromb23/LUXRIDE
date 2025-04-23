@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from .forms import CarForm
 from datetime import datetime
-from django.http import HttpRequest
+from django.http import HttpResponse
 from .models import CustomUser, BorrowedCar, Car
 from django.db.models import Sum
 from django.contrib.auth.hashers import make_password
@@ -25,10 +25,13 @@ def register_view(request):
 
 @login_required
 def user_dashboard(request):
+
+    current_step = request.user.current_step
+    print(f"current_step: {current_step}")
     context = {
         'borrowed_car': True,
-        'current_step': 2,
-        'step_range': range(1, 7),
+        'current_step': current_step,
+        'step_range': range(1, 6),
     }
     return render(request, 'dashboard/user_dashboard.html', context)
 
@@ -114,19 +117,24 @@ def delete_car(request, car_id):
 
 def car_details(request, car_id):
     car = get_object_or_404(Car, id=car_id)
-    print(car)
     return render(request, 'dashboard/partials/car_details.html', {'car': car})
 
 
-def update_status(request, car_id):
-    car = get_object_or_404(Car, id=car_id)
-    if request.method == 'POST':
-        status = request.POST.get('status')
-        car.status = status
-        car.save()
-        messages.success(request, 'Car status updated successfully.')
-        return redirect('manage_cars')
-    return render(request, 'dashboard/update_status.html', {'car': car})
+def get_selected_car(user, session):
+    if user.selected_car_id:
+        return user.selected_car
+
+    car_id = session.get('car_id')
+    if car_id:
+        try:
+            car = Car.objects.get(id=car_id)
+            user.selected_car = car
+            user.save()
+            return car
+        except Car.DoesNotExist:
+            return None
+
+    return None
 
 
 def manage_users(request):
@@ -201,26 +209,58 @@ def login_view(request):
 def user_dashboard_view(request):
     if not request.user.is_authenticated:
         return redirect('login')
-    borrowed_car = BorrowedCar.objects.filter(user=request.user).first()
 
-    current_step = int(request.GET.get('step', 1))
-    cars = Car.objects.all()
-    step_range = range(1, 8)
-    print(f"borrowed_car: {borrowed_car}")
-    print(list(step_range))
+    user = request.user
+    query_car_id = request.GET.get('car_id')
+    current_step = int(request.GET.get('step', user.current_step))
+    car = None
 
-    if borrowed_car and borrowed_car.current_step != current_step:
-        borrowed_car.current_step = current_step
-        borrowed_car.save()
+    if query_car_id:
+        car_instance = Car.objects.filter(id=query_car_id).first()
+        if car_instance:
+            user.selected_car = car_instance
+            user.save()
+            print(f"Linked Car to user: {car_instance.model}")
+            request.session['car_id'] = car_instance.id
 
+    # Always try fetching the selected car
+    car = get_selected_car(user, request.session)
+
+    if current_step == 2 and not car:
+        return redirect(f"{reverse('user_dashboard')}?step=1&error=No+car+selected.")
+
+    if current_step > user.current_step:
+        user.current_step = current_step
+        user.save()
+
+    borrowed_car = BorrowedCar.objects.filter(user=user).first()
     is_borrowed = borrowed_car.is_borrowed() if borrowed_car else False
+
     return render(request, 'dashboard/user_dashboard.html', {
         'borrowed_car': borrowed_car,
         'current_step': current_step,
-        'step_range': step_range,
+        'step_range': range(1, 7),
         'is_borrowed': is_borrowed,
-        'cars': cars,
+        'cars': Car.objects.all(),
+        'car': car,
     })
+
+
+def update_status(request, car_id):
+    car = get_object_or_404(Car, id=car_id)
+
+    if request.method == 'POST':
+        status = request.POST.get('status')
+        if status:
+            car.status = status
+            car.save()
+            messages.success(request, 'Car status updated successfully.')
+        else:
+            messages.error(request, 'No status provided.')
+        return redirect('manage_cars')
+
+    return render(request, 'dashboard/update_status.html', {'car': car})
+
 
 # car application steps
 
@@ -228,16 +268,28 @@ def user_dashboard_view(request):
 def dashboard_step1(request):
     print("Step 1 view called")
     step = int(request.GET.get('step', 1))
+
     if request.method == 'POST' and step == 1:
-        full_name = request.POST.get('full_name')
-        email = request.POST.get('email')
-        phone_number = request.POST.get('phone_number')
         driving_license_no = request.POST.get('driving_license_no')
 
-        if not all([full_name, email, phone_number, driving_license_no]):
-            messages.error(request, 'All fields are required.')
-            return redirect('user_dashboard', {'current_step': step,
-                                               'error': 'All fields are required.'})
+        # First try to get car_id from session
+        car_id = request.session.get('car_id')
+
+        # If not in session, try from user.selected_car
+        if not car_id and request.user.is_authenticated and hasattr(request.user, 'selected_car'):
+            car_id = request.user.selected_car.id
+
+        if not car_id:
+            return redirect(f"{reverse('user_dashboard')}?step=1&error=No+car+selected.")
+
+        try:
+            car = Car.objects.get(id=car_id)
+            print(f"Car found: {car.model}")
+        except Car.DoesNotExist:
+            return redirect(f"{reverse('user_dashboard')}?step=1&error=Car+not+found.")
+
+        if not driving_license_no:
+            return redirect(f"{reverse('user_dashboard')}?step=1&error=All+fields+are+required.")
 
         return redirect(reverse('user_dashboard') + '?step=2')
 

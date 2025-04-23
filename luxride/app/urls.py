@@ -33,6 +33,7 @@ urlpatterns = [
 
     # steps for car application
     path('dashboard/step1', views.dashboard_step1, name='dashboard_step1'),
+    # path('dashboard/step2/', views.dashboard_step2, name='dashboard_step2'),
 
 ]
 
