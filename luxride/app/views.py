@@ -261,7 +261,7 @@ def user_dashboard_view(request):
     # === Navigation button logic ===
     step_range = range(1, 7)
     show_prev = current_step > 1
-    hide_next = current_step in [1, 2]
+    hide_next = current_step in [1, 2, 4]
     show_next = (current_step < step_range[-1]) and not hide_next
     disable_next = False
 
@@ -387,6 +387,14 @@ def process_card_payment(request):
         request.user.payment_status = 'pending'
         request.user.save()
     return redirect(f"{reverse('user_dashboard')}?step=3")
+
+
+@login_required
+def agree_terms(request):
+    if not request.user.has_agreed_terms:
+        request.user.has_agreed_terms = True
+        request.user.save()
+    return redirect('/dashboard/?step=5')
 
 
 def logout_view(request):

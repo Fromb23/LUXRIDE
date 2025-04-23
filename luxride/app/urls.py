@@ -40,6 +40,7 @@ urlpatterns = [
          views.initiate_mpesa_payment, name='initiate_mpesa_payment'),
     path('card-payment/', views.process_card_payment,
          name='process_card_payment'),
+    path('agree-terms/', views.agree_terms, name='agree_terms'),
 ]
 
 if settings.DEBUG:

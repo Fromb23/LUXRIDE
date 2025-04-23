@@ -33,6 +33,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     driving_license_no = models.CharField(max_length=50, unique=True)
     is_superuser = models.BooleanField(default=False)
     current_step = models.PositiveIntegerField(default=1)
+    has_agreed_terms = models.BooleanField(default=False)
     selected_car = models.ForeignKey(
         'Car', on_delete=models.SET_NULL, null=True, blank=True)
     status = models.CharField(
