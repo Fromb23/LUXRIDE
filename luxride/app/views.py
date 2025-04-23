@@ -48,19 +48,18 @@ def admin_dashboard(request):
     total_revenue = 0
 
     available_cars_count = BorrowedCar.objects.filter(
-        status='Available').count()
-    borrowed_cars_count = BorrowedCar.objects.filter(
-        current_step=1).count()
+        status='available').count()
 
+    borrowed_cars_count = BorrowedCar.objects.filter(status='borrowed').count()
     pending_borrows_count = BorrowedCar.objects.filter(
-        current_step=2).count()
+        status='pending').count()
 
     total_revenue = BorrowedCar.objects.aggregate(
         Sum('rental_price'))['rental_price__sum'] or 0
 
     recent_borrows = BorrowedCar.objects.order_by('-borrow_date')[:5]
 
-    ongoing_borrows = BorrowedCar.objects.filter(current_step=1)[:5]
+    ongoing_borrows = BorrowedCar.objects.filter(status='borrowed')[:5]
 
     context = {
         'available_cars_count': available_cars_count,
@@ -192,7 +191,6 @@ def login_view(request):
             user = CustomUser.objects.get(email=email)
 
             if user.check_password(password):
-
                 login(request, user)
 
                 messages.success(request, 'Login successful.')
