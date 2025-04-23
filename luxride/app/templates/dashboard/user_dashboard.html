@@ -89,7 +89,7 @@
               This step is complete or in progress.
             </p>
 
-            {% if current_step == 1 %}
+            {% if user.current_step == 1 %}
             <p>Confirm Personal Information</p>
             {% elif current_step == 2 %}
             <p>Confirm Car Details</p>
@@ -106,7 +106,7 @@
           <div class="flex items-center">
             {% for i in step_range %}
             <div class="flex items-center md:mb-4">
-              {% if current_step >= i %}
+              {% if user.current_step >= i %}
               <a href="?step={{ i }}" class="flex flex-col items-center group">
                 <div
                   class="w-12 h-12 rounded-full {% if current_step == i %}bg-[#3cab4b] border-2 border-[#3cab4b] text-white {% else %}bg-white border-2 border-[#3cab4b]{% endif %} flex items-center justify-center text-[#3cab4b] font-bold text-lg">

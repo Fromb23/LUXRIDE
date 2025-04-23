@@ -33,8 +33,13 @@ urlpatterns = [
 
     # steps for car application
     path('dashboard/step1', views.dashboard_step1, name='dashboard_step1'),
-    # path('dashboard/step2/', views.dashboard_step2, name='dashboard_step2'),
+    path('dashboard/step2/', views.dashboard_step2, name='dashboard_step2'),
 
+    # initiate mpesa payment
+    path('initiate-mpesa-payment/',
+         views.initiate_mpesa_payment, name='initiate_mpesa_payment'),
+    path('card-payment/', views.process_card_payment,
+         name='process_card_payment'),
 ]
 
 if settings.DEBUG:

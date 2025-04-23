@@ -1,0 +1,43 @@
+<div class="bg-gray-100 p-6 rounded-lg shadow-md max-w-xl mx-auto space-y-6">
+    <h3 class="text-xl font-bold text-center text-gray-700">Confirm Your Payment</h3>
+
+    <div class="bg-white p-4 rounded-lg shadow text-center text-gray-700 text-base font-medium">
+        Amount to pay: <span class="text-green-600 font-semibold">Ksh {{ car.rental_price }}</span>/day
+    </div>
+
+    <!-- M-Pesa Option -->
+    <div class="bg-white p-4 rounded shadow">
+        <h4 class="font-semibold text-gray-800 mb-2">Pay with M-Pesa</h4>
+        <form method="post" action="{% url 'initiate_mpesa_payment' %}">
+            {% csrf_token %}
+            <input type="tel" name="phone_number" placeholder="Enter Phone Number"
+                class="w-full p-2 border border-gray-300 rounded mb-2" required>
+            <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded">Pay via
+                M-Pesa</button>
+        </form>
+        <div id="payment-message" class="text-center text-sm text-green-600 mt-2 hidden"></div>
+    </div>
+
+    <!-- Card Option -->
+    <div class="bg-white p-4 rounded shadow">
+        <h4 class="font-semibold text-gray-800 mb-2">Pay with Card</h4>
+        <form method="post" action="{% url 'process_card_payment' %}">
+            {% csrf_token %}
+            <input type="text" name="card_number" placeholder="Card Number"
+                class="w-full p-2 border border-gray-300 rounded mb-2" required>
+            <input type="text" name="expiry" placeholder="MM/YY" class="w-full p-2 border border-gray-300 rounded mb-2"
+                required>
+            <input type="text" name="cvv" placeholder="CVV" class="w-full p-2 border border-gray-300 rounded mb-2"
+                required>
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded">Pay via
+                Card</button>
+        </form>
+    </div>
+
+    <div class="text-center text-sm text-gray-500">
+        Payment Status:
+        <span class="{% if user.payment_status == 'confirmed' %}text-green-600{% else %}text-yellow-500{% endif %}">
+            {{ user.payment_status|title }}
+        </span>
+    </div>
+</div>

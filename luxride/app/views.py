@@ -1,5 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 from django.urls import reverse
 from .forms import CarForm
 from datetime import datetime
@@ -206,6 +209,27 @@ def login_view(request):
     return render(request, 'auth/login.html')
 
 
+@require_POST
+def step_control_view(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
+
+    step = int(request.POST.get('step', 0))
+    lock = request.POST.get('lock', 'false') == 'true'
+
+    user = request.user
+
+    if step > user.current_step:
+        user.current_step = step
+
+    if lock:
+        user.locked_steps = getattr(user, 'locked_steps', []) + [step]
+
+    user.save()
+
+    return JsonResponse({'success': True, 'current_step': user.current_step})
+
+
 def user_dashboard_view(request):
     if not request.user.is_authenticated:
         return redirect('login')
@@ -220,10 +244,8 @@ def user_dashboard_view(request):
         if car_instance:
             user.selected_car = car_instance
             user.save()
-            print(f"Linked Car to user: {car_instance.model}")
             request.session['car_id'] = car_instance.id
 
-    # Always try fetching the selected car
     car = get_selected_car(user, request.session)
 
     if current_step == 2 and not car:
@@ -236,6 +258,13 @@ def user_dashboard_view(request):
     borrowed_car = BorrowedCar.objects.filter(user=user).first()
     is_borrowed = borrowed_car.is_borrowed() if borrowed_car else False
 
+    # === Navigation button logic ===
+    step_range = range(1, 7)
+    show_prev = current_step > 1
+    hide_next = current_step in [1, 2]
+    show_next = (current_step < step_range[-1]) and not hide_next
+    disable_next = False
+
     return render(request, 'dashboard/user_dashboard.html', {
         'borrowed_car': borrowed_car,
         'current_step': current_step,
@@ -243,6 +272,10 @@ def user_dashboard_view(request):
         'is_borrowed': is_borrowed,
         'cars': Car.objects.all(),
         'car': car,
+        'show_prev': show_prev,
+        'show_next': show_next,
+        'hide_next': hide_next,
+        'disable_next': disable_next,
     })
 
 
@@ -294,6 +327,66 @@ def dashboard_step1(request):
         return redirect(reverse('user_dashboard') + '?step=2')
 
     return render(request, 'dashboard/steps/step1.html', {'current_step': step})
+
+
+def dashboard_step2(request):
+    print("Step 2 view called")
+    step = int(request.GET.get('step', 2))
+
+    if request.method == 'POST' and step == 2:
+        car_id = request.session.get('car_id')
+
+        if not car_id:
+            return redirect(f"{reverse('user_dashboard')}?step=1&error=No+car+selected.")
+
+        try:
+            car = Car.objects.get(id=car_id)
+            print(f"Car found: {car.model}")
+        except Car.DoesNotExist:
+            return redirect(f"{reverse('user_dashboard')}?step=1&error=Car+not+found.")
+
+        # Process the form data here
+        # For example, save it to the database or perform any other action
+
+        return redirect(reverse('user_dashboard') + '?step=3')
+
+    return render(request, 'dashboard/steps/step2.html', {'current_step': step})
+
+
+@csrf_exempt
+@login_required
+def initiate_mpesa_payment(request):
+    if request.method == 'POST':
+        try:
+            phone = request.POST.get('phone_number')
+            if not phone:
+                raise ValueError("Phone number is required")
+
+            print(f"Initiating M-Pesa STK for {phone}...")
+
+            user = request.user
+            user.payment_status = CustomUser.PaymentStatus.PENDING
+            user.save()
+
+            return redirect(f"{reverse('user_dashboard')}?step=3")
+
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=400)
+
+    return JsonResponse({'error': 'Invalid request'}, status=405)
+
+
+@csrf_exempt
+@login_required
+def process_card_payment(request):
+    if request.method == 'POST':
+        print("Card payment processed.")
+        request.user.payment_status = 'pending'
+        request.user.save()
+    return redirect(f"{reverse('user_dashboard')}?step=3")
 
 
 def logout_view(request):

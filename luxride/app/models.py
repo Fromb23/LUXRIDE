@@ -49,6 +49,16 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.full_name
 
+    class PaymentStatus(models.TextChoices):
+        PENDING = 'pending', 'Pending'
+        CONFIRMED = 'confirmed', 'Confirmed'
+
+    payment_status = models.CharField(
+        max_length=10,
+        choices=PaymentStatus.choices,
+        default=PaymentStatus.PENDING
+    )
+
 
 class Car(models.Model):
     STATUS_CHOICES = [

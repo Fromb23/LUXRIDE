@@ -8,8 +8,7 @@
 
     {% elif current_step == 3 %}
     <h3 class="text-xl font-semibold mb-4">Step 3: Payment Information</h3>
-    <p>Enter your payment details to secure your booking.</p>
-    <!-- Add your step 3 content here -->
+    {% include 'dashboard/steps/step3.html' %}
 
     {% elif current_step == 4 %}
     <h3 class="text-xl font-semibold mb-4">Step 4: Confirmation</h3>
@@ -19,7 +18,7 @@
 
     <!-- Navigation Buttons -->
     <div class="flex justify-between mt-6">
-        {% if current_step > 1 %}
+        {% if show_prev %}
         <a href="?step={{ current_step|add:'-1' }}"
             class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded">
             Previous
@@ -28,18 +27,17 @@
         <span class="invisible"></span>
         {% endif %}
 
-
-        {% if current_step > 1 and current_step < step_range|last %} <a href="?step={{ current_step|add:'1' }}"
-            class="bg-[#3cab4b] hover:bg-green-700 text-white px-4 py-2 rounded">
+        {% if show_next %}
+        <a href="?step={{ current_step|add:'1' }}" class="bg-[#3cab4b] hover:bg-green-700 text-white px-4 py-2 rounded">
             Next
-            </a>
-            {% elif current_step == 1 %}
-            <span class="invisible"></span>
-            {% else %}
-            <span class="bg-gray-100 text-gray-400 px-4 py-2 rounded cursor-not-allowed">
-                Next
-            </span>
-            {% endif %}
+        </a>
+        {% elif hide_next %}
+        <span class="invisible"></span>
+        {% elif disable_next %}
+        <span class="bg-gray-100 text-gray-400 px-4 py-2 rounded cursor-not-allowed">
+            Next
+        </span>
+        {% endif %}
     </div>
 
     <div class="mt-4 text-center">
