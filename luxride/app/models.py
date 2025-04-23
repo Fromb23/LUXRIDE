@@ -32,7 +32,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     phone_number = models.CharField(max_length=15, blank=True)
     driving_license_no = models.CharField(max_length=50, unique=True)
     is_superuser = models.BooleanField(default=False)
-    current_step = models.PositiveIntegerField(default=1)
+    current_step = models.PositiveIntegerField(
+        default=1, null=True, blank=True)
     has_agreed_terms = models.BooleanField(default=False)
     selected_car = models.ForeignKey(
         'Car', on_delete=models.SET_NULL, null=True, blank=True)
@@ -49,6 +50,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.full_name
+
+    def save(self, *args, **kwargs):
+        if self.user.is_superuser:
+            self.current_step = None
+        super(CustomUser, self).save(*args, **kwargs)
 
     class PaymentStatus(models.TextChoices):
         PENDING = 'pending', 'Pending'
