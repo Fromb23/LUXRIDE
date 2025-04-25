@@ -4,65 +4,663 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Luxride</title>
+    <title>Luxride - Luxury Stays & Premium Car Rentals</title>
+    <meta name="description"
+        content="Experience luxury stays and premium car rentals with Luxride. Your journey begins here.">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'luxride-primary': '#3cab4b',
+                        'luxride-secondary': '#7c8991',
+                        'luxride-accent': '#fbbf24',
+                    },
+                    fontFamily: {
+                        'sans': ['Poppins', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        .hero-section {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1483&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .testimonial-card {
+            transition: all 0.3s ease;
+        }
+
+        .testimonial-card:hover {
+            transform: scale(1.03);
+        }
+    </style>
 </head>
 
-<body class="bg-gray-100 text-gray-800">
+<body class="bg-gray-50 text-gray-800">
+    <!-- Navigation -->
+    <header class="bg-luxride-secondary text-white py-4 sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <i class="fas fa-car text-luxride-accent text-2xl mr-2"></i>
+                <h1 class="text-2xl sm:text-3xl font-bold">Luxride</h1>
+            </div>
 
-    <header class="bg-[#7c8991] text-white py-4">
-        <div class="container mx-auto flex justify-between items-center px-4">
-            <h1 class="text-3xl font-bold">Luxride</h1>
-            <nav class="space-x-4 text-sm sm:text-base">
-                <a href="#home" class="hover:text-gray-300">Home</a>
-                <a href="#about" class="hover:text-gray-300">About</a>
-                <a href="#contact" class="hover:text-gray-300">Contact</a>
-                <a href="auth/login" class="hover:text-gray-300">Login</a>
+            <nav class="hidden md:flex space-x-6 items-center">
+                <a href="#home" class="hover:text-luxride-accent transition">Home</a>
+                <a href="#features" class="hover:text-luxride-accent transition">Features</a>
+                <a href="#destinations" class="hover:text-luxride-accent transition">Destinations</a>
+                <a href="#fleet" class="hover:text-luxride-accent transition">Our Fleet</a>
+                <a href="#testimonials" class="hover:text-luxride-accent transition">Testimonials</a>
+                <a href="auth/login"
+                    class="bg-luxride-primary hover:bg-green-600 px-4 py-2 rounded-full transition">Login</a>
             </nav>
+
+            <button id="mobile-menu-button" class="md:hidden text-xl">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-luxride-secondary py-4 px-4">
+            <div class="flex flex-col space-y-3">
+                <a href="#home" class="hover:text-luxride-accent transition">Home</a>
+                <a href="#features" class="hover:text-luxride-accent transition">Features</a>
+                <a href="#destinations" class="hover:text-luxride-accent transition">Destinations</a>
+                <a href="#fleet" class="hover:text-luxride-accent transition">Our Fleet</a>
+                <a href="#testimonials" class="hover:text-luxride-accent transition">Testimonials</a>
+                <a href="auth/login"
+                    class="bg-luxride-primary hover:bg-green-600 px-4 py-2 rounded-full text-center transition">Login</a>
+            </div>
         </div>
     </header>
 
-    <section class="bg-[#3cab4b] text-white py-20 text-center">
-        <h2 class="text-3xl sm:text-4xl md:text-5xl font-semibold">Welcome to Luxride!</h2>
-        <p class="mt-4 text-lg sm:text-xl">Your journey to luxury stays and seamless car bookings begins here.</p>
-        <a href="#about"
-            class="mt-6 inline-block px-6 py-3 bg-yellow-500 text-black rounded-full hover:bg-yellow-400">Learn More</a>
+    <!-- Hero Section -->
+    <section id="home" class="hero-section text-white py-32 text-center">
+        <div class="container mx-auto px-4">
+            <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 animate-fadeIn">Experience Luxury Travel</h1>
+            <p class="text-xl sm:text-2xl mb-8 max-w-3xl mx-auto">Discover premium stays and exclusive car rentals
+                tailored for your comfort and style.</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="#fleet"
+                    class="bg-luxride-accent hover:bg-yellow-500 text-black font-semibold px-8 py-3 rounded-full transition transform hover:scale-105">
+                    Explore Our Fleet <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+                <a href="#contact"
+                    class="bg-transparent hover:bg-white hover:text-black border-2 border-white font-semibold px-8 py-3 rounded-full transition transform hover:scale-105">
+                    Contact Us
+                </a>
+            </div>
+        </div>
     </section>
 
-    <main class="container mx-auto my-12 px-4">
-        {% block content %}
-        <div class="text-center">
-            <h3 class="text-3xl sm:text-4xl font-semibold mb-4">Luxride Features</h3>
-            <p class="text-lg sm:text-xl mb-6">Discover how Luxride makes your stays and car bookings more convenient.
-            </p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-                <div class="bg-white shadow-md p-6 rounded-lg">
-                    <h4 class="text-xl sm:text-2xl font-semibold">Hotel Booking</h4>
-                    <p class="mt-2">Book a luxurious room in top-rated hotels with just a few clicks.</p>
+    <!-- Stats Section -->
+    <section class="bg-white py-12 shadow-sm">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                <div class="p-6">
+                    <div class="text-4xl font-bold text-luxride-primary">250+</div>
+                    <div class="text-gray-600 mt-2">Premium Vehicles</div>
                 </div>
-                <div class="bg-white shadow-md p-6 rounded-lg">
-                    <h4 class="text-xl sm:text-2xl font-semibold">Car Rental</h4>
-                    <p class="mt-2">Choose from a variety of cars for your travels, at affordable prices.</p>
+                <div class="p-6">
+                    <div class="text-4xl font-bold text-luxride-primary">100+</div>
+                    <div class="text-gray-600 mt-2">Luxury Hotels</div>
                 </div>
-                <div class="bg-white shadow-md p-6 rounded-lg">
-                    <h4 class="text-xl sm:text-2xl font-semibold">Easy Payments</h4>
-                    <p class="mt-2">Secure and simple payment options for your hotel and car bookings.</p>
+                <div class="p-6">
+                    <div class="text-4xl font-bold text-luxride-primary">10K+</div>
+                    <div class="text-gray-600 mt-2">Happy Customers</div>
+                </div>
+                <div class="p-6">
+                    <div class="text-4xl font-bold text-luxride-primary">24/7</div>
+                    <div class="text-gray-600 mt-2">Customer Support</div>
                 </div>
             </div>
         </div>
-        {% endblock %}
-    </main>
+    </section>
 
-    <footer class="bg-[#7c8991] text-white py-6 mt-12">
-        <div class="container mx-auto text-center">
-            <p>&copy; 2025 Luxride. All rights reserved.</p>
-            <div class="space-x-4 mt-2">
-                <a href="#privacy" class="hover:text-gray-400">Privacy Policy</a>
-                <a href="#terms" class="hover:text-gray-400">Terms of Service</a>
+    <!-- Features Section -->
+    <section id="features" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">Why Choose Luxride?</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">We combine luxury with convenience to create
+                    unforgettable travel experiences.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="feature-card bg-white p-8 rounded-xl shadow-md transition duration-300">
+                    <div class="text-luxride-primary text-4xl mb-4">
+                        <i class="fas fa-hotel"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Luxury Stays</h3>
+                    <p class="text-gray-600">Handpicked premium hotels and resorts with exceptional amenities and
+                        services.</p>
+                </div>
+
+                <div class="feature-card bg-white p-8 rounded-xl shadow-md transition duration-300">
+                    <div class="text-luxride-primary text-4xl mb-4">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Premium Fleet</h3>
+                    <p class="text-gray-600">Drive in style with our collection of luxury, sports, and executive
+                        vehicles.</p>
+                </div>
+
+                <div class="feature-card bg-white p-8 rounded-xl shadow-md transition duration-300">
+                    <div class="text-luxride-primary text-4xl mb-4">
+                        <i class="fas fa-concierge-bell"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Concierge Service</h3>
+                    <p class="text-gray-600">Personalized assistance for all your travel needs, available 24/7.</p>
+                </div>
+
+                <div class="feature-card bg-white p-8 rounded-xl shadow-md transition duration-300">
+                    <div class="text-luxride-primary text-4xl mb-4">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Custom Itineraries</h3>
+                    <p class="text-gray-600">Tailored travel plans designed to match your preferences and schedule.</p>
+                </div>
+
+                <div class="feature-card bg-white p-8 rounded-xl shadow-md transition duration-300">
+                    <div class="text-luxride-primary text-4xl mb-4">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Full Insurance</h3>
+                    <p class="text-gray-600">Comprehensive coverage for all rentals, giving you peace of mind.</p>
+                </div>
+
+                <div class="feature-card bg-white p-8 rounded-xl shadow-md transition duration-300">
+                    <div class="text-luxride-primary text-4xl mb-4">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Dedicated Support</h3>
+                    <p class="text-gray-600">Our team is always ready to assist you throughout your journey.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Destinations Section -->
+    <section id="destinations" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">Popular Destinations</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">Explore our most sought-after locations with premium
+                    accommodations.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="relative overflow-hidden rounded-xl shadow-lg group">
+                    <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+                        alt="Paris" class="w-full h-64 object-cover transition duration-500 group-hover:scale-110">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end p-6">
+                        <div>
+                            <h3 class="text-white text-2xl font-bold">Paris</h3>
+                            <p class="text-white/90">From $199/night</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative overflow-hidden rounded-xl shadow-lg group">
+                    <img src="https://images.unsplash.com/photo-1538970272646-f61fabb3be33?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+                        alt="New York" class="w-full h-64 object-cover transition duration-500 group-hover:scale-110">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end p-6">
+                        <div>
+                            <h3 class="text-white text-2xl font-bold">New York</h3>
+                            <p class="text-white/90">From $249/night</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative overflow-hidden rounded-xl shadow-lg group">
+                    <img src="https://images.unsplash.com/photo-1533107862482-0e6974b06ec4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+                        alt="Tokyo" class="w-full h-64 object-cover transition duration-500 group-hover:scale-110">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end p-6">
+                        <div>
+                            <h3 class="text-white text-2xl font-bold">Tokyo</h3>
+                            <p class="text-white/90">From $179/night</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-12">
+                <a href="#"
+                    class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-luxride-primary hover:bg-green-600 transition">
+                    View All Destinations
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Fleet Section -->
+    <section id="fleet" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">Our Premium Fleet</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">Choose from our exclusive collection of luxury
+                    vehicles.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-white rounded-xl shadow-md overflow-hidden transition duration-300 hover:shadow-xl">
+                    <div class="relative h-56 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1494972308805-463bc619d34e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1473&q=80"
+                            alt="Mercedes S-Class"
+                            class="w-full h-full object-cover transition duration-500 hover:scale-105">
+                        <div
+                            class="absolute top-4 right-4 bg-luxride-primary text-white px-2 py-1 rounded text-sm font-medium">
+                            Popular
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Mercedes S-Class</h3>
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex items-center text-gray-600">
+                                <i class="fas fa-users mr-2"></i>
+                                <span>4 Seats</span>
+                            </div>
+                            <div class="flex items-center text-gray-600">
+                                <i class="fas fa-gas-pump mr-2"></i>
+                                <span>Premium</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-2xl font-bold text-luxride-primary">$199</span>
+                                <span class="text-gray-600">/day</span>
+                            </div>
+                            <button
+                                class="bg-luxride-primary hover:bg-green-600 text-white px-4 py-2 rounded-full transition">
+                                Book Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md overflow-hidden transition duration-300 hover:shadow-xl">
+                    <div class="relative h-56 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+                            alt="Porsche 911"
+                            class="w-full h-full object-cover transition duration-500 hover:scale-105">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Porsche 911</h3>
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex items-center text-gray-600">
+                                <i class="fas fa-users mr-2"></i>
+                                <span>2 Seats</span>
+                            </div>
+                            <div class="flex items-center text-gray-600">
+                                <i class="fas fa-gas-pump mr-2"></i>
+                                <span>Premium</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-2xl font-bold text-luxride-primary">$299</span>
+                                <span class="text-gray-600">/day</span>
+                            </div>
+                            <button
+                                class="bg-luxride-primary hover:bg-green-600 text-white px-4 py-2 rounded-full transition">
+                                Book Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md overflow-hidden transition duration-300 hover:shadow-xl">
+                    <div class="relative h-56 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1555215695-3004980ad54e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+                            alt="Range Rover"
+                            class="w-full h-full object-cover transition duration-500 hover:scale-105">
+                        <div
+                            class="absolute top-4 right-4 bg-luxride-primary text-white px-2 py-1 rounded text-sm font-medium">
+                            New
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Range Rover</h3>
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex items-center text-gray-600">
+                                <i class="fas fa-users mr-2"></i>
+                                <span>5 Seats</span>
+                            </div>
+                            <div class="flex items-center text-gray-600">
+                                <i class="fas fa-gas-pump mr-2"></i>
+                                <span>Diesel</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-2xl font-bold text-luxride-primary">$249</span>
+                                <span class="text-gray-600">/day</span>
+                            </div>
+                            <button
+                                class="bg-luxride-primary hover:bg-green-600 text-white px-4 py-2 rounded-full transition">
+                                Book Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-12">
+                <a href="#"
+                    class="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-full shadow-sm text-gray-700 bg-white hover:bg-gray-50 transition">
+                    View Full Fleet
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl sm:text-4xl font-bold mb-4">What Our Clients Say</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">Don't just take our word for it - hear from our
+                    satisfied customers.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="testimonial-card bg-gray-50 p-8 rounded-xl shadow-md">
+                    <div class="flex items-center mb-4">
+                        <div class="text-yellow-400 text-xl">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-6">"Luxride made my business trip effortless. The car was pristine and
+                        the hotel was perfectly located. Will definitely use them again!"</p>
+                    <div class="flex items-center">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="John D."
+                            class="w-12 h-12 rounded-full mr-4">
+                        <div>
+                            <h4 class="font-bold">John D.</h4>
+                            <p class="text-gray-600 text-sm">Business Executive</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card bg-gray-50 p-8 rounded-xl shadow-md">
+                    <div class="flex items-center mb-4">
+                        <div class="text-yellow-400 text-xl">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-6">"The Range Rover we rented was perfect for our family vacation.
+                        Luxride's customer service was exceptional throughout our trip."</p>
+                    <div class="flex items-center">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah M."
+                            class="w-12 h-12 rounded-full mr-4">
+                        <div>
+                            <h4 class="font-bold">Sarah M.</h4>
+                            <p class="text-gray-600 text-sm">Family Vacationer</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card bg-gray-50 p-8 rounded-xl shadow-md">
+                    <div class="flex items-center mb-4">
+                        <div class="text-yellow-400 text-xl">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-6">"As a frequent traveler, I can confidently say Luxride offers the best
+                        combination of luxury and value. Their concierge service is a game-changer."</p>
+                    <div class="flex items-center">
+                        <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="Michael T."
+                            class="w-12 h-12 rounded-full mr-4">
+                        <div>
+                            <h4 class="font-bold">Michael T.</h4>
+                            <p class="text-gray-600 text-sm">Frequent Traveler</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="bg-luxride-primary text-white py-20">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl sm:text-4xl font-bold mb-6">Ready for Your Luxury Experience?</h2>
+            <p class="text-xl mb-8 max-w-2xl mx-auto">Join thousands of satisfied customers who trust Luxride for their
+                premium travel needs.</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="auth/register"
+                    class="bg-white hover:bg-gray-100 text-luxride-primary font-semibold px-8 py-3 rounded-full transition transform hover:scale-105">
+                    Sign Up Now
+                </a>
+                <a href="#contact"
+                    class="bg-transparent hover:bg-white hover:text-luxride-primary border-2 border-white font-semibold px-8 py-3 rounded-full transition transform hover:scale-105">
+                    Contact Us
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl sm:text-4xl font-bold mb-4">Get In Touch</h2>
+                    <p class="text-lg text-gray-600 max-w-2xl mx-auto">Have questions? Our team is here to help you with
+                        all your travel needs.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">Contact Information</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="text-luxride-primary text-xl mr-4 mt-1">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold">Headquarters</h4>
+                                    <p class="text-gray-600">123 Luxury Avenue, Suite 100<br>Nairobi, Kenya</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start">
+                                <div class="text-luxride-primary text-xl mr-4 mt-1">
+                                    <i class="fas fa-phone-alt"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold">Phone</h4>
+                                    <p class="text-gray-600">+254 700 123 456<br>Mon-Fri, 8am-6pm</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start">
+                                <div class="text-luxride-primary text-xl mr-4 mt-1">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold">Email</h4>
+                                    <p class="text-gray-600">info@luxride.com<br>support@luxride.com</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <form class="space-y-4">
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700">Your Name</label>
+                                <input type="text" id="name" name="name"
+                                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-luxride-primary focus:border-luxride-primary">
+                            </div>
+
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                                <input type="email" id="email" name="email"
+                                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-luxride-primary focus:border-luxride-primary">
+                            </div>
+
+                            <div>
+                                <label for="subject" class="block text-sm font-medium text-gray-700">Subject</label>
+                                <input type="text" id="subject" name="subject"
+                                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-luxride-primary focus:border-luxride-primary">
+                            </div>
+
+                            <div>
+                                <label for="message" class="block text-sm font-medium text-gray-700">Message</label>
+                                <textarea id="message" name="message" rows="4"
+                                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-luxride-primary focus:border-luxride-primary"></textarea>
+                            </div>
+
+                            <div>
+                                <button type="submit"
+                                    class="w-full bg-luxride-primary hover:bg-green-600 text-white font-semibold px-6 py-3 rounded-md transition">
+                                    Send Message
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="bg-gray-50 py-16">
+        <div class="container mx-auto px-4 max-w-4xl">
+            <div class="bg-white p-8 rounded-xl shadow-md text-center">
+                <h3 class="text-2xl font-bold mb-2">Stay Updated</h3>
+                <p class="text-gray-600 mb-6">Subscribe to our newsletter for exclusive offers and travel tips.</p>
+                <form class="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
+                    <input type="email" placeholder="Your email address"
+                        class="flex-grow px-4 py-2 border border-gray-300 rounded-md focus:ring-luxride-primary focus:border-luxride-primary">
+                    <button type="submit"
+                        class="bg-luxride-primary hover:bg-green-600 text-white px-6 py-2 rounded-md transition">
+                        Subscribe
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-luxride-secondary text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-car text-luxride-accent text-2xl mr-2"></i>
+                        <h3 class="text-xl font-bold">Luxride</h3>
+                    </div>
+                    <p class="text-gray-300">Premium stays and luxury car rentals for the discerning traveler.</p>
+                    <div class="flex space-x-4 mt-4">
+                        <a href="#" class="text-gray-300 hover:text-white transition">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-white transition">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-white transition">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-white transition">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#home" class="text-gray-300 hover:text-white transition">Home</a></li>
+                        <li><a href="#features" class="text-gray-300 hover:text-white transition">Features</a></li>
+                        <li><a href="#destinations" class="text-gray-300 hover:text-white transition">Destinations</a>
+                        </li>
+                        <li><a href="#fleet" class="text-gray-300 hover:text-white transition">Our Fleet</a></li>
+                        <li><a href="#testimonials" class="text-gray-300 hover:text-white transition">Testimonials</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Services</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">Luxury Stays</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">Car Rentals</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">Airport Transfers</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">Corporate Travel</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">Event Transportation</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Legal</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">Terms of Service</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">Cookie Policy</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">Refund Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400 text-sm">
+                <p>&copy; 2025 Luxride. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
-</body>
+    <!-- Back to Top Button -->
+    <button id="back-to-top"
+        class="fixed bottom-8 right-8 bg-luxride-primary text-white p-3 rounded-full shadow-lg opacity-0 invisible transition-all duration-300">
+        <i class="fas fa-arrow-up"></i>
+    </button>
 
-</html>
+    <!-- JavaScript -->
+    <script>
+        // Mobile Menu Toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Close mobile
