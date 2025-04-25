@@ -235,6 +235,7 @@ def user_dashboard_view(request):
 
     user = request.user
     query_car_id = request.GET.get('car_id')
+    resume = request.GET.get('resume') == 'true'
     current_step = int(request.GET.get('step', user.current_step))
     car = None
 
@@ -257,7 +258,6 @@ def user_dashboard_view(request):
     rental_price = car.rental_price if car else 0
     days = request.GET.get('days', 1)
     total_amount = rental_price * int(days) if car else 0
-    print(f"Total amount: {total_amount}")
     borrowed_car = BorrowedCar.objects.filter(user=user).first()
     is_borrowed = borrowed_car.is_borrowed() if borrowed_car else False
 
@@ -267,6 +267,7 @@ def user_dashboard_view(request):
     hide_next = current_step in [1, 2, 4]
     show_next = (current_step < step_range[-1]) and not hide_next
     disable_next = False
+    print(f"Borrowed car: {borrowed_car}")
 
     return render(request, 'dashboard/user_dashboard.html', {
         'borrowed_car': borrowed_car,
@@ -281,6 +282,7 @@ def user_dashboard_view(request):
         'disable_next': disable_next,
         'days_range': range(1, 16),
         'total_amount': total_amount,
+        'resume': resume,
     })
 
 
@@ -408,6 +410,10 @@ def agree_terms(request):
 def finalize_booking(request):
     if request.method == 'POST':
         car_id = request.user.selected_car_id
+        current_step = request.user.current_step
+        current_step = 0
+        request.user.current_step = current_step
+        request.user.save()
 
         if not car_id:
             return HttpResponseBadRequest("Car ID not found.")
@@ -421,7 +427,7 @@ def finalize_booking(request):
             status='pending'
         )
 
-        return redirect('/')
+        return redirect('user_dashboard')
 
 
 def logout_view(request):
