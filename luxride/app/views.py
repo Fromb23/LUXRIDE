@@ -115,7 +115,7 @@ def delete_car(request, car_id):
     if request.method == 'POST':
         car.delete()
         messages.success(request, 'Car deleted successfully.')
-        return redirect('manage_cars')
+        return redirect('manage-cars')
 
 
 def car_details(request, car_id):
