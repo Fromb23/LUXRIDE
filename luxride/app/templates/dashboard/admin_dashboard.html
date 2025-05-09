@@ -58,21 +58,92 @@
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
+    .mobile-menu {
+      z-index: 45;
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      height: 72px;
+    }
+
+    /* Ensure sidebar content is fully visible */
+    #sidebar {
+      top: 72px;
+      height: calc(100vh - 72px);
+      overflow-y: auto;
+    }
+
     @media (max-width: 768px) {
       .mobile-menu {
-        transform: translateX(-100%);
+        position: fixed;
+        left: -100%;
+        top: 72px;
+        bottom: 0;
+        width: 75%;
         transition: transform 0.3s ease;
+        z-index: 40;
+        overflow-y: auto;
+        background: #16242e;
       }
 
       .mobile-menu.open {
-        transform: translateX(0);
+        transform: translateX(100%);
+      }
+
+      #main-content {
+        margin-left: 0;
+        padding-top: 2rem;
+        width: 100%;
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar-overlay {
+        position: fixed;
+        top: 72px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 35;
+        display: none;
+      }
+
+      .sidebar-overlay.open {
+        display: block;
+      }
+
+      #mobile-menu-button {
+        position: fixed;
+        top: 18px;
+        left: 16px;
+        z-index: 60;
+        background: rgba(255, 255, 255, 0.9);
+      }
+    }
+
+    @media (min-width: 768px) {
+      #sidebar {
+        margin-top: 72px;
+        position: static;
+        height: auto;
+        overflow: visible;
+      }
+
+      #main-content {
+        padding-top: 78px;
       }
     }
   </style>
+
 </head>
 
 <body class="bg-gray-100 text-gray-800 min-h-screen font-sans">
-  <header class="bg-gradient-primary text-white p-4 flex justify-between items-center shadow-lg">
+  <header class="bg-gradient-primary text-white p-4 flex justify-between items-center shadow-lg fixed w-full z-30">
     <h1 class="text-xl md:text-2xl font-bold">
       <i class="fas fa-car text-yellow-400 mr-2"></i>
       Luxride Admin
@@ -104,14 +175,13 @@
     </div>
   </header>
 
-  <div class="flex flex-col md:flex-row min-h-[calc(100vh-72px)]">>
+  <div class="flex flex-col md:flex-row pt-16 md:pt-0">
     <button id="mobile-menu-button" class="md:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-md shadow-md">
       <i class="fas fa-bars text-gray-700"></i>
     </button>
 
     <!-- Sidebar -->
-    <aside id="sidebar"
-      class="mobile-menu w-full md:w-64 bg-[#16242e] text-white p-4 md:p-6 shadow-lg fixed md:static z-40">
+    <aside id="sidebar" class="mobile-menu w-full md:w-64 bg-[#16242e] text-white p-4 md:p-6 shadow-lg md:static">
       <nav class="space-y-2">
         <a class="block px-4 py-3 rounded-lg sidebar-item active" data-target="dashboard-home">
           <i class="fas fa-tachometer-alt mr-3"></i> Dashboard Home
@@ -135,7 +205,7 @@
       </div>
     </aside>
 
-    <main class="flex-1 p-4 md:p-8 mt-16 md:mt-0" id="main-content">
+    <main class="flex-1 p-4 md:p-8" id="main-content">
       <h2 class="text-2xl font-semibold text-yellow-500 mb-6">
         Welcome to the Admin Panel
       </h2>
@@ -151,104 +221,123 @@
   </footer>
 
   <script>
-    function loadContent(target) {
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+
+    const sidebarOverlay = document.createElement('div');
+    sidebarOverlay.id = 'sidebar-overlay';
+    sidebarOverlay.className = 'sidebar-overlay';
+    document.body.appendChild(sidebarOverlay);
+
+    function toggleMobileMenu() {
+      sidebar.classList.toggle('open');
+      sidebarOverlay.classList.toggle('open');
+      document.body.classList.toggle('overflow-hidden');
+    }
+
+    function closeMobileMenu() {
+      sidebar.classList.remove('open');
+      sidebarOverlay.classList.remove('open');
+      document.body.classList.remove('overflow-hidden');
+    }
+
+
+    mobileMenuButton.addEventListener('click', toggleMobileMenu);
+    sidebarOverlay.addEventListener('click', closeMobileMenu);
+
+    async function loadContent(target) {
       const contentMap = {
-        "dashboard-home":
-          "<h2 class='hidden text-gray-500'>Dashboard Home</h2><p>Welcome to the dashboard home content.</p>",
-        "manage-users":
-          "<h2 class='hidden text-gray-500'>Manage Users</h2><p>Manage users content goes here...</p>",
-        "manage-cars":
-          "<h2 class='hidden text-gray-500'>Manage Cars</h2><p>Manage cars content goes here...</p>",
-        "borrowing-logs":
-          "<h2 class='hidden text-gray-500'>Borrowing Logs</h2><p>Borrowing logs content goes here...</p>",
+        "dashboard-home": {
+          title: "Dashboard Home",
+          content: "<p>Welcome to the dashboard home content.</p>"
+        },
+        "manage-users": {
+          title: "Manage Users",
+          content: "<p>Manage users content goes here...</p>"
+        },
+        "manage-cars": {
+          title: "Manage Cars",
+          content: "<p>Manage cars content goes here...</p>"
+        },
+        "borrowing-logs": {
+          title: "Borrowing Logs",
+          content: "<p>Borrowing logs content goes here...</p>"
+        }
       };
-      if (target === "dashboard-home") {
-        fetch("/admin/dashboard/main-content")
-          .then((response) => response.text())
-          .then((data) => {
-            document.getElementById("main-content").innerHTML = data;
-          })
 
-          .catch((error) => {
-            console.error("Error loading admin_main_content.html:", error);
-            document.getElementById(target).innerHTML =
-              "<p>Error loading content.</p>";
-          });
-      } else if (target === "manage-users") {
-        fetch("/admin/dashboard/users")
-          .then((response) => response.text())
-          .then((data) => {
-            document.getElementById("main-content").innerHTML = data;
-          })
-          .catch((error) => {
-            console.error("Error loading manage_users.html:", error);
-            document.getElementById(target).innerHTML =
-              "<p>Error loading content.</p>";
-          });
-      } else if (target === "manage-cars") {
-        fetch("/admin/dashboard/cars")
-          .then((response) => response.text())
-          .then((data) => {
-            document.getElementById("main-content").innerHTML = data;
-          })
-          .catch((error) => {
-            console.error("Error loading manage_cars.html:", error);
-            document.getElementById(target).innerHTML =
-              "<p>Error loading content.</p>";
-          });
-      } else if (target === "borrowing-logs") {
-        fetch("/admin/dashboard/borrowed-logs")
-          .then((response) => response.text())
-          .then((data) => {
-            document.getElementById("main-content").innerHTML = data;
-          })
-          .catch((error) => {
-            console.error("Error loading borrowing_logs.html:", error);
-            document.getElementById(target).innerHTML =
-              "<p>Error loading content.</p>";
-          });
-      } else {
-        document.getElementById("main-content").innerHTML =
-          contentMap[target] || "<p>Content not found.</p>";
-      }
+      try {
+        // Close mobile menu if open (on mobile devices)
+        if (window.innerWidth <= 768) {
+          closeMobileMenu();
+        }
 
-      document.getElementById("main-content").innerHTML =
-        contentMap[target] || "<p>Content not found.</p>";
-      localStorage.setItem("selectedMenu", target);
-    }
-
-    document.querySelectorAll(".sidebar-item").forEach((item) => {
-      item.addEventListener("click", (event) => {
-        const target = event.target.closest(".sidebar-item").dataset.target;
-        loadContent(target);
-      });
-    });
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const selectedMenu =
-        localStorage.getItem("selectedMenu") || "dashboard-home";
-      loadContent(selectedMenu);
-    });
-    function loadCreateCarForm() {
-      fetch("/dashboard/cars/create/")
-        .then((res) => res.text())
-        .then((html) => {
-          document.getElementById("main-content").innerHTML = html;
-        })
-        .catch((err) => {
-          console.error("Error loading create_car.html:", err);
-          document.getElementById("main-content").innerHTML =
-            "<p>Error loading form.</p>";
+        // Update active menu item
+        document.querySelectorAll(".sidebar-item").forEach(item => {
+          item.classList.remove("active");
+          if (item.dataset.target === target) {
+            item.classList.add("active");
+          }
         });
+
+        // Try to fetch content from server first
+        let endpoint;
+        switch (target) {
+          case "dashboard-home": endpoint = "/admin/dashboard/main-content"; break;
+          case "manage-users": endpoint = "/admin/dashboard/users"; break;
+          case "manage-cars": endpoint = "/admin/dashboard/cars"; break;
+          case "borrowing-logs": endpoint = "/admin/dashboard/borrowed-logs"; break;
+          default: endpoint = null;
+        }
+
+        if (endpoint) {
+          const response = await fetch(endpoint);
+          if (response.ok) {
+            mainContent.innerHTML = await response.text();
+            localStorage.setItem("selectedMenu", target);
+            return;
+          }
+        }
+
+        // Fallback to local content if fetch fails
+        const content = contentMap[target] || contentMap["dashboard-home"];
+        mainContent.innerHTML = `
+          <h2 class="text-2xl font-semibold text-yellow-500 mb-6">${content.title}</h2>
+          ${content.content}
+        `;
+
+        localStorage.setItem("selectedMenu", target);
+      } catch (error) {
+        console.error("Error loading content:", error);
+        mainContent.innerHTML = `
+          <h2 class="text-2xl font-semibold text-yellow-500 mb-6">Error</h2>
+          <p class="text-red-500">Failed to load content. Please try again.</p>
+        `;
+      }
     }
 
-    document
-      .querySelector(".group")
-      .addEventListener("click", function (event) {
-        const dropdownMenu =
-          event.currentTarget.querySelector(".dropdown-menu");
-        dropdownMenu.classList.toggle("hidden");
-      });
+    // Car Creation Form Loader
+    async function loadCreateCarForm() {
+      try {
+        const response = await fetch("/dashboard/cars/create/");
+        if (response.ok) {
+          mainContent.innerHTML = await response.text();
+
+          // Close mobile menu if open
+          if (window.innerWidth <= 768) {
+            closeMobileMenu();
+          }
+        } else {
+          throw new Error("Failed to load form");
+        }
+      } catch (err) {
+        console.error("Error loading form:", err);
+        mainContent.innerHTML = `
+          <h2 class="text-2xl font-semibold text-yellow-500 mb-6">Add New Car</h2>
+          <p class="text-red-500">Error loading form. Please try again.</p>
+        `;
+      }
+    }
 
     function previewImage(event) {
       const imagePreview = document.getElementById("image-preview");
@@ -256,22 +345,39 @@
 
       if (event.target.files && event.target.files[0]) {
         const reader = new FileReader();
-
         reader.onload = function (e) {
           imagePreview.src = e.target.result;
           imagePreview.classList.remove("hidden");
           uploadInfo.classList.add("hidden");
         };
-
         reader.readAsDataURL(event.target.files[0]);
       }
     }
 
-    const mobileMenuButton = document.getElementById('mobile-menu-button');
-    const sidebar = document.getElementById('sidebar');
+    // Dropdown Menu Handler
+    document.querySelector(".group")?.addEventListener("click", function (event) {
+      const dropdownMenu = event.currentTarget.querySelector(".dropdown-menu");
+      dropdownMenu.classList.toggle("hidden");
+    });
 
-    mobileMenuButton.addEventListener('click', () => {
-      sidebar.classList.toggle('open');
+
+    document.addEventListener("DOMContentLoaded", () => {
+      localStorage.removeItem("selectedMenu");
+      const selectedMenu = "dashboard-home";
+      loadContent(selectedMenu);
+
+      document.querySelectorAll(".sidebar-item").forEach(item => {
+        item.addEventListener("click", (event) => {
+          const target = event.currentTarget.dataset.target;
+          loadContent(target);
+        });
+      });
+
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+          closeMobileMenu();
+        }
+      });
     });
   </script>
 </body>
