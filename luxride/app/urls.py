@@ -16,12 +16,15 @@ urlpatterns = [
     # car management
     path('admin/dashboard/cars/', views.manage_cars, name='manage-cars'),
     path('dashboard/cars/create/', views.create_car, name='create_car'),
+    path('start-new-booking/', views.start_new_booking, name='start_new_booking'),
     path('cars/<int:car_id>/edit/', views.edit_car, name='edit_car'),
     path('cars/<int:car_id>/delete/', views.delete_car, name='delete_car'),
     path('cars/<int:car_id>/status/', views.update_status,
          name='update_status'),
     path('dashboard/car_details/<int:car_id>/',
          views.car_details, name='car_details'),
+    path('admin/dashboard/borrowed-car/<int:car_id>/edit/',
+         views.update_car_status, name='update_car_status'),
 
     # user management
     path('admin/dashboard/users/',

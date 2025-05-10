@@ -31,17 +31,27 @@
         <span class="invisible"></span>
         {% endif %}
 
-        {% if show_next %}
-        <a href="?step={{ current_step|add:'1' }}" class="bg-[#3cab4b] hover:bg-green-700 text-white px-4 py-2 rounded">
-            Next
-        </a>
-        {% elif hide_next %}
+        {# Next Button Logic #}
+        {% if hide_next %}
         <span class="invisible"></span>
-        {% elif disable_next %}
-        <span class="bg-gray-100 text-gray-400 px-4 py-2 rounded cursor-not-allowed">
-            Next
-        </span>
-        {% endif %}
+        {% else %}
+        {% if current_step < max_reached_step %} <a href="?step={{ max_reached_step }}"
+            class="bg-[#3cab4b] hover:bg-green-700 text-white px-3 py-2 rounded text-sm md:text-base md:px-4 whitespace-nowrap">
+            Jump to Latest
+            </a>
+            {% elif show_next %}
+            <a href="?step={{ current_step|add:'1' }}"
+                class="bg-[#3cab4b] hover:bg-green-700 text-white px-4 py-2 rounded">
+                Next
+            </a>
+            {% elif disable_next %}
+            <span class="bg-gray-100 text-gray-400 px-4 py-2 rounded cursor-not-allowed">
+                Next
+            </span>
+            {% else %}
+            <span class="invisible"></span>
+            {% endif %}
+            {% endif %}
     </div>
 
     <div class="mt-4 text-center">

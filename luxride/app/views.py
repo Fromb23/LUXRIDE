@@ -1,11 +1,13 @@
+from django.views.decorators.http import require_http_methods
+from django.shortcuts import render, redirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponseBadRequest, HttpResponseForbidden, Http404
 from django.http import JsonResponse
 from django.urls import reverse
-from .forms import CarForm
+from .forms import CarForm, BorrowedCarForm
 from datetime import datetime
 from django.http import HttpResponse
 from .models import CustomUser, BorrowedCar, Car
@@ -57,7 +59,7 @@ def admin_dashboard(request):
     total_revenue = BorrowedCar.objects.aggregate(
         Sum('rental_price'))['rental_price__sum'] or 0
 
-    recent_borrows = BorrowedCar.objects.order_by('-borrow_date')[:5]
+    recent_borrows = BorrowedCar.objects.order_by('-borrowed_date')[:5]
 
     ongoing_borrows = BorrowedCar.objects.filter(status='borrowed')[:5]
 
@@ -208,37 +210,72 @@ def login_view(request):
     return render(request, 'auth/login.html')
 
 
-@require_POST
-def step_control_view(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({'error': 'Unauthorized'}, status=403)
-
-    step = int(request.POST.get('step', 0))
-    lock = request.POST.get('lock', 'false') == 'true'
-
-    user = request.user
-
-    if step > user.current_step:
-        user.current_step = step
-
-    if lock:
-        user.locked_steps = getattr(user, 'locked_steps', []) + [step]
-
-    user.save()
-
-    return JsonResponse({'success': True, 'current_step': user.current_step})
-
-
+@require_http_methods(["GET", "POST"])
 def user_dashboard_view(request):
     if not request.user.is_authenticated:
         return redirect('login')
 
-    user = request.user
-    query_car_id = request.GET.get('car_id')
-    resume = request.GET.get('resume') == 'true'
-    current_step = int(request.GET.get('step', user.current_step))
-    car = None
+    if request.method == 'POST':
+        return handle_step_control(request)
 
+    return handle_dashboard_view(request)
+
+
+def handle_step_control(request):
+    """Handle step control POST requests"""
+    user = request.user
+    try:
+        step = int(request.POST.get('step', 0))
+        lock = request.POST.get('lock', 'false') == 'true'
+    except (TypeError, ValueError):
+        return JsonResponse({'error': 'Invalid parameters'}, status=400)
+
+    if step > user.current_step:
+        user.current_step = step
+
+    locked_steps = getattr(user, 'locked_steps', [])
+    if lock and step not in locked_steps:
+        locked_steps.append(step)
+    elif not lock and step in locked_steps:
+        locked_steps.remove(step)
+    user.locked_steps = locked_steps
+
+    user.save()
+    return JsonResponse({
+        'success': True,
+        'current_step': user.current_step,
+        'locked_steps': locked_steps
+    })
+
+
+@login_required
+def start_new_booking(request):
+    """Start a new booking by resetting the user's current step"""
+    user = request.user
+    user.current_step = 0
+    user.locked_steps = []
+    user.selected_car = None
+    user.save()
+    return redirect('user_dashboard')
+
+
+def handle_dashboard_view(request):
+    user = request.user
+
+    if not hasattr(user, 'current_step'):
+        raise Http404("You haven't started any step.")
+
+    try:
+        requested_step = int(request.GET.get('step', user.current_step))
+    except (TypeError, ValueError):
+        requested_step = user.current_step
+
+    # Allow step 0 as default
+    requested_step = max(0, min(requested_step, 5))
+    locked_steps = getattr(user, 'locked_steps', [])
+
+    query_car_id = request.GET.get('car_id')
+    car = None
     if query_car_id:
         car_instance = Car.objects.filter(id=query_car_id).first()
         if car_instance:
@@ -248,30 +285,43 @@ def user_dashboard_view(request):
 
     car = get_selected_car(user, request.session)
 
-    if current_step == 2 and not car:
-        return redirect(f"{reverse('user_dashboard')}?step=1&error=No+car+selected.")
+    # Skip step-related logic for step 0
+    if requested_step > 0:
+        if requested_step == 2 and not car:
+            return HttpResponseForbidden("Access to step 2 denied. No car selected.")
 
-    if current_step > user.current_step:
-        user.current_step = current_step
-        user.save()
+        if requested_step > user.current_step and requested_step in locked_steps:
+            raise Http404("Step not allowed.")
 
+        if requested_step <= user.current_step + 1 and requested_step not in locked_steps:
+            if requested_step > user.current_step:
+                user.current_step = requested_step
+                user.save()
+        else:
+            return redirect(f"{reverse('user_dashboard')}?step={user.current_step}&error=Step+not+allowed")
+
+    # Pricing
     rental_price = car.rental_price if car else 0
-    days = request.GET.get('days', 1)
-    total_amount = rental_price * int(days) if car else 0
+    days = int(request.GET.get('days', 1))
+    total_amount = rental_price * days if car else 0
+
     borrowed_car = BorrowedCar.objects.filter(user=user).first()
     is_borrowed = borrowed_car.is_borrowed() if borrowed_car else False
 
-    # === Navigation button logic ===
-    step_range = range(1, 6)
-    show_prev = current_step > 1
-    hide_next = current_step in [1, 2, 4]
-    show_next = (current_step < step_range[-1]) and not hide_next
-    disable_next = False
-    print(f"Borrowed car: {borrowed_car}")
+    # Navigation logic
+    step_range = range(1, 6)  # Include step 0
+    show_prev = requested_step > 0
+    hide_next = requested_step in [2, 4]
+    show_next = (
+        requested_step > 0 and not hide_next and
+        requested_step < 5 and
+        (requested_step < user.current_step or requested_step == 3)
+    )
 
     return render(request, 'dashboard/user_dashboard.html', {
         'borrowed_car': borrowed_car,
-        'current_step': current_step,
+        'current_step': requested_step,
+        'max_reached_step': user.current_step,
         'step_range': step_range,
         'is_borrowed': is_borrowed,
         'cars': Car.objects.all(),
@@ -279,10 +329,9 @@ def user_dashboard_view(request):
         'show_prev': show_prev,
         'show_next': show_next,
         'hide_next': hide_next,
-        'disable_next': disable_next,
         'days_range': range(1, 16),
         'total_amount': total_amount,
-        'resume': resume,
+        'resume': request.GET.get('resume') == 'true',
     })
 
 
@@ -312,10 +361,8 @@ def dashboard_step1(request):
     if request.method == 'POST' and step == 1:
         driving_license_no = request.POST.get('driving_license_no')
 
-        # First try to get car_id from session
         car_id = request.session.get('car_id')
 
-        # If not in session, try from user.selected_car
         if not car_id and request.user.is_authenticated and hasattr(request.user, 'selected_car'):
             car_id = request.user.selected_car.id
 
@@ -428,6 +475,20 @@ def finalize_booking(request):
         )
 
         return redirect('user_dashboard')
+
+
+def update_car_status(request, car_id):
+    borrowed_car = get_object_or_404(BorrowedCar, id=car_id)
+
+    if request.method == 'POST':
+        form = BorrowedCarForm(request.POST, instance=borrowed_car)
+        if form.is_valid():
+            form.save()
+            return redirect('admin_dashboard')
+    else:
+        form = BorrowedCarForm(instance=borrowed_car)
+
+    return render(request, 'dashboard/borrowed_cars.html', {'form': form, 'borrowed_car': borrowed_car})
 
 
 def logout_view(request):

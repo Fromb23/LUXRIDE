@@ -314,6 +314,11 @@
             class="inline-block bg-luxgreen hover:bg-luxgreen-dark text-white px-6 py-3 rounded-lg font-medium shadow-md transition-all">
             Resume Booking
           </a>
+          <a href="{% url 'start_new_booking' %}"
+            onclick="return confirm('Are you sure you want to start a new booking?');"
+            class="ml-4 inline-block bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-3 rounded-lg font-medium shadow-md transition-all">
+            Start New Booking
+          </a>
         </div>
       </div>
       {% endif %}
@@ -396,42 +401,52 @@
           <div class="flex items-center justify-between max-w-3xl mx-auto">
             {% for i in step_range %}
             <div class="flex flex-col items-center relative">
-              {% if current_step > i %}
-              <a href="?step={{ i }}" class="flex flex-col items-center group">
-                <div
-                  class="w-12 h-12 rounded-full bg-luxgreen border-2 border-luxgreen flex items-center justify-center text-white font-bold text-lg transition-all group-hover:bg-luxgreen-dark group-hover:border-luxgreen-dark">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clip-rule="evenodd" />
-                  </svg>
+              {% if i <= max_reached_step %} <!-- Make step clickable if it's <=max_reached_step -->
+                <a href="?step={{ i }}" class="flex flex-col items-center group">
+                  {% if current_step > i %}
+                  <!-- Completed step -->
+                  <div
+                    class="w-12 h-12 rounded-full bg-luxgreen border-2 border-luxgreen flex items-center justify-center text-white font-bold text-lg transition-all group-hover:bg-luxgreen-dark group-hover:border-luxgreen-dark">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                  {% elif current_step == i %}
+                  <!-- Current step -->
+                  <div
+                    class="w-12 h-12 rounded-full bg-luxgreen border-2 border-luxgreen flex items-center justify-center text-white font-bold text-lg">
+                    {{ i }}
+                  </div>
+                  {% else %}
+                  <!-- Future step (within unlocked range) -->
+                  <div
+                    class="w-12 h-12 rounded-full bg-gray-100 border-2 border-luxgreen flex items-center justify-center text-luxgreen font-bold text-lg transition-all group-hover:bg-luxgreen-light">
+                    {{ i }}
+                  </div>
+                  {% endif %}
+                  <span
+                    class="mt-2 text-sm font-medium {% if i <= max_reached_step %}text-luxgreen{% else %}text-gray-500{% endif %}">Step
+                    {{ i }}</span>
+                </a>
+                {% else %}
+                <!-- Future locked step (beyond max_reached_step) -->
+                <div class="flex flex-col items-center">
+                  <div
+                    class="w-12 h-12 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center text-gray-400 font-bold text-lg">
+                    {{ i }}
+                  </div>
+                  <span class="mt-2 text-sm font-medium text-gray-500">Step {{ i }}</span>
                 </div>
-                <span class="mt-2 text-sm font-medium text-luxgreen">Step {{ i }}</span>
-              </a>
-              {% elif current_step == i %}
-              <div class="flex flex-col items-center">
-                <div
-                  class="w-12 h-12 rounded-full bg-luxgreen border-2 border-luxgreen flex items-center justify-center text-white font-bold text-lg">
-                  {{ i }}
-                </div>
-                <span class="mt-2 text-sm font-medium text-luxgreen">Step {{ i }}</span>
-              </div>
-              {% else %}
-              <div class="flex flex-col items-center">
-                <div
-                  class="w-12 h-12 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center text-gray-400 font-bold text-lg">
-                  {{ i }}
-                </div>
-                <span class="mt-2 text-sm font-medium text-gray-500">Step {{ i }}</span>
-              </div>
-              {% endif %}
+                {% endif %}
 
-              <!-- Connector Line (except last step) -->
-              {% if not forloop.last %}
-              <div
-                class="absolute top-6 left-full w-28 h-1 {% if current_step > i %}bg-luxgreen{% else %}bg-gray-200{% endif %}">
-              </div>
-              {% endif %}
+                <!-- Connector Line (except last step) -->
+                {% if not forloop.last %}
+                <div
+                  class="absolute top-6 left-full w-28 h-1 {% if i < max_reached_step %}bg-luxgreen{% else %}bg-gray-200{% endif %}">
+                </div>
+                {% endif %}
             </div>
             {% endfor %}
           </div>

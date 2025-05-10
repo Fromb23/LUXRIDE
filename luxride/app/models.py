@@ -34,6 +34,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False)
     current_step = models.PositiveIntegerField(
         default=0)
+    max_step = models.PositiveIntegerField(default=1)
     has_agreed_terms = models.BooleanField(default=False)
     selected_car = models.ForeignKey(
         'Car', on_delete=models.SET_NULL, null=True, blank=True)
@@ -92,7 +93,7 @@ class BorrowedCar(models.Model):
     ]
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     car = models.ForeignKey(Car, on_delete=models.CASCADE)
-    borrow_date = models.DateTimeField(auto_now_add=True)
+    borrowed_date = models.DateTimeField(auto_now_add=True)
     return_date = models.DateTimeField(null=True, blank=True)
     rental_price = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(
