@@ -6,9 +6,10 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponseBadRequest, HttpResponseForbidden, Http404
 from django.http import JsonResponse
+import json
 from django.urls import reverse
 from .forms import CarForm, BorrowedCarForm
-from datetime import datetime
+from django.utils import timezone
 from django.http import HttpResponse
 from .models import CustomUser, BorrowedCar, Car
 from django.db.models import Sum
@@ -53,6 +54,7 @@ def admin_dashboard(request):
         status='available').count()
 
     borrowed_cars_count = BorrowedCar.objects.filter(status='borrowed').count()
+
     pending_borrows_count = BorrowedCar.objects.filter(
         status='pending').count()
 
@@ -121,6 +123,7 @@ def delete_car(request, car_id):
 
 
 def car_details(request, car_id):
+    print("Car details view called")
     car = get_object_or_404(Car, id=car_id)
     return render(request, 'dashboard/partials/car_details.html', {'car': car})
 
@@ -149,7 +152,20 @@ def manage_users(request):
 
 def borrowed_logs(request):
     borrowed_cars = BorrowedCar.objects.all()
-    return render(request, 'dashboard/borrowed_cars.html', {'borrowed_cars': borrowed_cars})
+    print(f"Borrowed cars: {borrowed_cars}")
+    statuses = [choice[0] for choice in BorrowedCar.STATUS_CHOICES]
+
+    current_statuses = {}
+    for borrowed_car in borrowed_cars:
+        current_statuses[borrowed_car.id] = borrowed_car.status
+        car_user = borrowed_car.user.full_name
+        print(f"Car make: {car_user}")
+
+    return render(request, 'dashboard/borrowed_cars.html', {
+        'borrowed_cars': borrowed_cars,
+        'statuses': statuses,
+        'current_statuses': current_statuses
+    })
 
 
 def register_view(request):
@@ -253,9 +269,14 @@ def start_new_booking(request):
     """Start a new booking by resetting the user's current step"""
     user = request.user
     user.current_step = 0
+    user.has_agreed_terms = False
     user.locked_steps = []
-    user.selected_car = None
+    user.selected_car_id = None
     user.save()
+    print(f"user selected car id after reset: {user.selected_car_id}")
+
+    # Clear the session car_id
+    request.session.pop('car_id', None)
     return redirect('user_dashboard')
 
 
@@ -278,14 +299,16 @@ def handle_dashboard_view(request):
     car = None
     if query_car_id:
         car_instance = Car.objects.filter(id=query_car_id).first()
-        if car_instance:
+        if car_instance and (not user.selected_car or user.selected_car.id != car_instance.id):
+            user.current_step = 0
+            user.locked_steps = []
+            user.has_agreed_terms = False
             user.selected_car = car_instance
             user.save()
             request.session['car_id'] = car_instance.id
 
     car = get_selected_car(user, request.session)
 
-    # Skip step-related logic for step 0
     if requested_step > 0:
         if requested_step == 2 and not car:
             return HttpResponseForbidden("Access to step 2 denied. No car selected.")
@@ -309,7 +332,7 @@ def handle_dashboard_view(request):
     is_borrowed = borrowed_car.is_borrowed() if borrowed_car else False
 
     # Navigation logic
-    step_range = range(1, 6)  # Include step 0
+    step_range = range(1, 6)
     show_prev = requested_step > 0
     hide_next = requested_step in [2, 4]
     show_next = (
@@ -351,6 +374,26 @@ def update_status(request, car_id):
     return render(request, 'dashboard/update_status.html', {'car': car})
 
 
+def update_borrowed_car_status(request, pk):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            status = data.get('status')
+            borrowed_car = BorrowedCar.objects.get(pk=pk)
+            borrowed_car.status = status
+            borrowed_car.save()
+            car = borrowed_car.car
+            car.status = status
+            car.available = False if status == 'borrowed' or status == 'pending' else True
+            car.save()
+            return JsonResponse({'success': True})
+
+        except Exception as e:
+            print(f"Error: {e}")
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+    return JsonResponse({'error': 'Invalid method'}, status=405)
+
+
 # car application steps
 
 
@@ -364,7 +407,7 @@ def dashboard_step1(request):
         car_id = request.session.get('car_id')
 
         if not car_id and request.user.is_authenticated and hasattr(request.user, 'selected_car'):
-            car_id = request.user.selected_car.id
+            car_id = request.user.selected_car_id
 
         if not car_id:
             return redirect(f"{reverse('user_dashboard')}?step=1&error=No+car+selected.")
@@ -412,15 +455,17 @@ def dashboard_step2(request):
 def initiate_mpesa_payment(request):
     if request.method == 'POST':
         try:
-            phone = request.POST.get('phone_number')
-            car_id = request.POST.get('car_id')
-            car = Car.objects.get(id=car_id)
+            return_date = request.POST.get('return_date')
+            print(f"Return date: {return_date}")
 
-            if not phone:
-                raise ValueError("Phone number is required")
+            if not return_date:
+                raise ValueError("Return date is required")
 
             user = request.user
+
             user.payment_status = CustomUser.PaymentStatus.PENDING
+            user.borrowed_date = timezone.now().date()
+            user.return_date = return_date
             user.save()
 
             return redirect(f"{reverse('user_dashboard')}?step=3")

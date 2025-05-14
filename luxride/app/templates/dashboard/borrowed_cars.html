@@ -8,7 +8,6 @@
         <th class="py-3 px-4 text-left">Rental Price</th>
         <th class="py-3 px-4 text-left">User</th>
         <th class="py-3 px-4 text-left">Car</th>
-        <th class="py-3 px-4 text-left">Step</th>
         <th class="py-3 px-4 text-left">Status</th>
       </tr>
     </thead>
@@ -16,22 +15,21 @@
       {% for record in borrowed_cars %}
       <tr class="hover:bg-gray-50">
         <td class="py-3 px-4">{{ record.borrowed_date }}</td>
-        <td class="py-3 px-4">{{ record.return_date }}</td>
+        <td class="py-3 px-4">{{ record.user.return_date }}</td>
         <td class="py-3 px-4">KSh {{ record.rental_price }}</td>
-        <td class="py-3 px-4">{{ record.user.get_full_name }}</td>
-        <td class="py-3 px-4">{{ record.car.name }}</td>
-        <td class="py-3 px-4 capitalize">{{ record.current_step }}</td>
+        <td class="py-3 px-4">{{ record.user.full_name }}</td>
+        <td class="py-3 px-4">{{ record.car.make }}</td>
+
         <td class="py-3 px-4">
-          {% if record.status == "pending" %}
-          <span class="text-yellow-600 font-medium">Pending</span>
-          {% elif record.status == "verified" %}
-          <span class="text-green-600 font-medium">Verified</span>
-          {% elif record.status == "returned" %}
-          <span class="text-blue-600 font-medium">Returned</span>
-          {% endif %}
-          <br>
-          <a href="{% url 'update_car_status' car_id=record.id %}"
-            class="text-blue-600 hover:underline text-sm">Edit</a>
+          <select class="border rounded px-2 py-1 capitalize" id="status-dropdown-{{ record.id }}"
+            onchange="updateStatus(this, '{{ record.id }}')">
+            <option value="{{ record.status }}" selected>{{ record.status|capfirst }}</option>
+            {% for status in statuses %}
+            {% if status != record.status %}
+            <option value="{{ status }}">{{ status|capfirst }}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
         </td>
       </tr>
       {% endfor %}
@@ -43,8 +41,3 @@
   </div>
   {% endif %}
 </div>
-
-<!-- Lucide Icons if needed -->
-<script>
-  lucide.createIcons();
-</script>

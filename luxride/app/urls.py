@@ -33,6 +33,8 @@ urlpatterns = [
     # borrowed logs
     path('admin/dashboard/borrowed-logs/',
          views.borrowed_logs, name='borrowed_logs'),
+    path('update-borrowed-car-status/<int:pk>/',
+         views.update_borrowed_car_status, name='update_borrowed_car_status'),
 
     # steps for car application
     path('dashboard/step1', views.dashboard_step1, name='dashboard_step1'),

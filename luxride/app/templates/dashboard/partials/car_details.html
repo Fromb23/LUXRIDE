@@ -51,10 +51,16 @@
                 KES {{ car.rental_price }} <span class="text-gray-500 text-sm font-normal">/ day</span>
               </p>
             </div>
-            <a class="bg-luxride-primary hover:bg-luxride-dark text-white px-6 py-2 rounded-lg font-medium transition-colors duration-300"
-              href="{% url 'user_dashboard' %}?step=1&car_id={{ car.id }}">
+            {% if car.status == "borrowed" or car.status == "pending" %}
+            <button class="bg-red-600 cursor-not-allowed text-white px-5 py-2 rounded-lg font-medium" disabled>
+              Booked
+            </button>
+            {% elif car.status == 'available' %}
+            <a href="{% url 'user_dashboard' %}?step=1&car_id={{ car.id }}"
+              class="bg-green-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-green-400 transition-all">
               Book Now
             </a>
+            {% endif %}
           </div>
 
           <!-- Divider -->

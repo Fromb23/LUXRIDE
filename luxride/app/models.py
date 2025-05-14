@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 
 class CustomUserManager(BaseUserManager):
@@ -30,11 +31,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=128)
     phone_number = models.CharField(max_length=15, blank=True)
+    borrowed_date = models.DateField(null=True, blank=True)
+    return_date = models.DateField(null=True, blank=True)
     driving_license_no = models.CharField(max_length=50, unique=True)
     is_superuser = models.BooleanField(default=False)
     current_step = models.PositiveIntegerField(
         default=0)
-    max_step = models.PositiveIntegerField(default=1)
     has_agreed_terms = models.BooleanField(default=False)
     selected_car = models.ForeignKey(
         'Car', on_delete=models.SET_NULL, null=True, blank=True)

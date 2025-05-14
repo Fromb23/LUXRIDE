@@ -1,11 +1,9 @@
 <div class="bg-gray-100 p-6 rounded-lg shadow-md max-w-xl mx-auto space-y-6">
     <h3 class="text-xl font-bold text-center text-gray-700">Confirm Your Payment</h3>
 
-    <!-- Payment Method Selection -->
     <div class="bg-white p-4 rounded shadow">
         <h4 class="font-semibold text-gray-800 mb-2">Choose Payment Method</h4>
 
-        <!-- Radio buttons to select payment method -->
         <label for="mpesa">
             <input type="radio" id="mpesa" name="payment_method" value="mpesa" class="mr-2"> Pay with M-Pesa
         </label>
@@ -14,22 +12,32 @@
         </label>
     </div>
 
-    <!-- Payment Forms -->
     <!-- M-Pesa Option -->
     <div class="bg-white p-4 rounded shadow mpesa-form" style="display: none;">
         <h4 class="font-semibold text-gray-800 mb-2">Pay with M-Pesa</h4>
         <form method="post" action="{% url 'initiate_mpesa_payment' %}">
             {% csrf_token %}
 
+            <!-- Hidden fields for dates -->
+            <input type="hidden" id="borrowing_date" name="borrowing_date" value="{% now 'Y-m-d' %}">
+            <input type="hidden" id="return_date" name="return_date" value="">
+
             <!-- Rental Days Dropdown -->
             <div class="bg-white p-4 rounded shadow">
                 <label for="days" class="block text-gray-700 font-medium mb-2">Select rental days</label>
-                <select id="days" name="days" class="w-full p-2 border border-gray-300 rounded mb-4" required>
+                <select id="days" name="days" class="w-full p-2 border border-gray-300 rounded mb-4" required
+                    onchange="calculateReturnDate()">
                     {% for i in days_range %}
                     <option value="{{ i }}">{{ i }} day{{ i|pluralize }}</option>
-                    </option>
                     {% endfor %}
                 </select>
+            </div>
+
+            <!-- Display dates -->
+            <div class="bg-white p-4 rounded shadow mb-4">
+                <p class="text-gray-700"><strong>Borrowing Date:</strong> <span id="display_borrowing_date">{% now "F j,
+                        Y" %}</span></p>
+                <p class="text-gray-700"><strong>Return Date:</strong> <span id="display_return_date"></span></p>
             </div>
 
             <!-- Amount to Pay -->
@@ -49,6 +57,28 @@
         <h4 class="font-semibold text-gray-800 mb-2">Pay with Card</h4>
         <form method="post" action="{% url 'process_card_payment' %}">
             {% csrf_token %}
+            <!-- Hidden fields for dates -->
+            <input type="hidden" id="card_borrowing_date" name="borrowing_date" value="{% now 'Y-m-d' %}">
+            <input type="hidden" id="card_return_date" name="return_date" value="">
+
+            <!-- Rental Days Dropdown -->
+            <div class="bg-white p-4 rounded shadow mb-4">
+                <label for="card_days" class="block text-gray-700 font-medium mb-2">Select rental days</label>
+                <select id="card_days" name="days" class="w-full p-2 border border-gray-300 rounded mb-4" required
+                    onchange="calculateCardReturnDate()">
+                    {% for i in days_range %}
+                    <option value="{{ i }}">{{ i }} day{{ i|pluralize }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Display dates -->
+            <div class="bg-white p-4 rounded shadow mb-4">
+                <p class="text-gray-700"><strong>Borrowing Date:</strong> <span id="display_card_borrowing_date">{% now
+                        "F j, Y" %}</span></p>
+                <p class="text-gray-700"><strong>Return Date:</strong> <span id="display_card_return_date"></span></p>
+            </div>
+
             <input type="text" name="card_number" placeholder="Card Number"
                 class="w-full p-2 border border-gray-300 rounded mb-2" required>
             <input type="text" name="expiry" placeholder="MM/YY" class="w-full p-2 border border-gray-300 rounded mb-2"
@@ -68,17 +98,13 @@
     </div>
 </div>
 
-<!-- JavaScript to Show/Hide Payment Forms Based on Selection -->
 <script>
-    // Get all payment method radio buttons
     const mpesaRadio = document.getElementById('mpesa');
     const cardRadio = document.getElementById('card');
 
-    // Get the forms for M-Pesa and Card
     const mpesaForm = document.querySelector('.mpesa-form');
     const cardForm = document.querySelector('.card-form');
 
-    // Function to toggle the payment forms
     function togglePaymentForm() {
         if (mpesaRadio.checked) {
             mpesaForm.style.display = 'block';
@@ -89,10 +115,56 @@
         }
     }
 
-    // Add event listeners to radio buttons to toggle form visibility
     mpesaRadio.addEventListener('change', togglePaymentForm);
     cardRadio.addEventListener('change', togglePaymentForm);
 
-    // Initially run the function to set the correct form visibility
     togglePaymentForm();
+
+    function calculateReturnDate() {
+        const days = parseInt(document.getElementById('days').value);
+        const borrowingDate = new Date();
+        const returnDate = new Date(borrowingDate);
+        returnDate.setDate(borrowingDate.getDate() + days);
+
+        // Format dates for display
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('display_return_date').textContent = returnDate.toLocaleDateString('en-US', options);
+
+        // Format dates for form submission (YYYY-MM-DD)
+        const formattedReturnDate = returnDate.toISOString().split('T')[0];
+        document.getElementById('return_date').value = formattedReturnDate;
+    }
+
+    // Function to calculate return date for Card form
+    function calculateCardReturnDate() {
+        const days = parseInt(document.getElementById('card_days').value);
+        const borrowingDate = new Date();
+        const returnDate = new Date(borrowingDate);
+        returnDate.setDate(borrowingDate.getDate() + days);
+
+        // Format dates for display
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('display_card_return_date').textContent = returnDate.toLocaleDateString('en-US', options);
+
+        // Format dates for form submission (YYYY-MM-DD)
+        const formattedReturnDate = returnDate.toISOString().split('T')[0];
+        document.getElementById('card_return_date').value = formattedReturnDate;
+    }
+
+    // Initialize dates on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        calculateReturnDate();
+        calculateCardReturnDate();
+
+        // Show/hide payment forms based on selection
+        document.getElementById('mpesa').addEventListener('change', function () {
+            document.querySelector('.mpesa-form').style.display = 'block';
+            document.querySelector('.card-form').style.display = 'none';
+        });
+
+        document.getElementById('card').addEventListener('change', function () {
+            document.querySelector('.mpesa-form').style.display = 'none';
+            document.querySelector('.card-form').style.display = 'block';
+        });
+    });
 </script>
