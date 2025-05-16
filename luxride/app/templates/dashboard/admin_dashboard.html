@@ -295,7 +295,9 @@
         if (endpoint) {
           const response = await fetch(endpoint);
           if (response.ok) {
-            mainContent.innerHTML = await response.text();
+            const html = await response.text();
+            mainContent.innerHTML = html;
+
             localStorage.setItem("selectedMenu", target);
             return;
           }

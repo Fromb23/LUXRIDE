@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.views.decorators.http import require_http_methods
 from django.shortcuts import render, redirect
 from django.shortcuts import render, redirect, get_object_or_404
@@ -5,13 +6,15 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponseBadRequest, HttpResponseForbidden, Http404
+from django.contrib.auth.decorators import user_passes_test
 from django.http import JsonResponse
 import json
+import datetime
 from django.urls import reverse
 from .forms import CarForm, BorrowedCarForm
 from django.utils import timezone
 from django.http import HttpResponse
-from .models import CustomUser, BorrowedCar, Car
+from .models import CustomUser, BorrowedCar, Car, BorrowCarHistory
 from django.db.models import Sum
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
@@ -30,8 +33,15 @@ def register_view(request):
     return render(request, 'auth/create_user.html')
 
 
+def is_regular_user(user):
+    return user.is_authenticated and not user.is_superuser
+
+
 @login_required
+@user_passes_test(is_regular_user)
 def user_dashboard(request):
+    if not is_regular_user(request.user):
+        return redirect('admin_dashboard')
 
     current_step = request.user.current_step
     print(f"current_step: {current_step}")
@@ -45,24 +55,20 @@ def user_dashboard(request):
 
 @login_required
 def admin_dashboard(request):
-    available_cars_count = 0
-    borrowed_cars_count = 0
-    pending_borrows_count = 0
-    total_revenue = 0
-
     available_cars_count = BorrowedCar.objects.filter(
         status='available').count()
-
     borrowed_cars_count = BorrowedCar.objects.filter(status='borrowed').count()
-
     pending_borrows_count = BorrowedCar.objects.filter(
         status='pending').count()
 
     total_revenue = BorrowedCar.objects.aggregate(
-        Sum('rental_price'))['rental_price__sum'] or 0
+        Sum('rental_price')
+    )['rental_price__sum'] or 0
 
-    recent_borrows = BorrowedCar.objects.order_by('-borrowed_date')[:5]
+    # Get recent borrows from history
+    recent_borrows = BorrowCarHistory.objects.order_by('-borrowed_date')[:5]
 
+    # Ongoing borrows (still active)
     ongoing_borrows = BorrowedCar.objects.filter(status='borrowed')[:5]
 
     context = {
@@ -158,8 +164,6 @@ def borrowed_logs(request):
     current_statuses = {}
     for borrowed_car in borrowed_cars:
         current_statuses[borrowed_car.id] = borrowed_car.status
-        car_user = borrowed_car.user.full_name
-        print(f"Car make: {car_user}")
 
     return render(request, 'dashboard/borrowed_cars.html', {
         'borrowed_cars': borrowed_cars,
@@ -280,6 +284,11 @@ def start_new_booking(request):
     return redirect('user_dashboard')
 
 
+def get_rental_history(user):
+    """Get the rental history of the user"""
+    return BorrowCarHistory.objects.filter(user=user).order_by('-borrowed_date')
+
+
 def handle_dashboard_view(request):
     user = request.user
 
@@ -329,7 +338,28 @@ def handle_dashboard_view(request):
     total_amount = rental_price * days if car else 0
 
     borrowed_car = BorrowedCar.objects.filter(user=user).first()
+    print(f"Borrowed car by user: {borrowed_car}")
     is_borrowed = borrowed_car.is_borrowed() if borrowed_car else False
+
+    days_borrowed = user.days_borrowed
+    if days_borrowed < 1:
+        days_borrowed = 1
+
+    total_cost = days_borrowed * \
+        (user.selected_car.rental_price if user.selected_car else 0)
+
+    return_date = request.user.return_date
+    if return_date:
+        return_datetime = datetime.datetime.combine(
+            return_date, datetime.time.min)
+        return_timestamp = return_datetime.timestamp()
+    else:
+        return_timestamp = None
+
+    retal_history = None
+    if borrowed_car or is_borrowed is not None:
+        retal_history = get_rental_history(user)
+        print(f"Rental history: {retal_history}")
 
     # Navigation logic
     step_range = range(1, 6)
@@ -354,6 +384,9 @@ def handle_dashboard_view(request):
         'hide_next': hide_next,
         'days_range': range(1, 16),
         'total_amount': total_amount,
+        'total_cost': total_cost,
+        'return_date':  return_timestamp,
+        'rental_history': retal_history,
         'resume': request.GET.get('resume') == 'true',
     })
 
@@ -386,6 +419,16 @@ def update_borrowed_car_status(request, pk):
             car.status = status
             car.available = False if status == 'borrowed' or status == 'pending' else True
             car.save()
+
+            borrower = borrowed_car.user
+            if status == 'borrowed':
+                borrower.status = 'borrowed'
+            elif status == 'available':
+                borrower.status = 'available'
+            elif status == 'pending':
+                borrower.status = 'pending'
+            borrower.save()
+
             return JsonResponse({'success': True})
 
         except Exception as e:
@@ -455,18 +498,31 @@ def dashboard_step2(request):
 def initiate_mpesa_payment(request):
     if request.method == 'POST':
         try:
-            return_date = request.POST.get('return_date')
-            print(f"Return date: {return_date}")
+            return_date_str = request.POST.get('return_date')
+            print(f"Return date: {return_date_str}")
 
-            if not return_date:
+            if not return_date_str:
                 raise ValueError("Return date is required")
 
-            user = request.user
+            # Convert the return_date string to a date object
+            return_date = datetime.strptime(return_date_str, "%Y-%m-%d").date()
+            borrowed_date = timezone.now().date()
 
+            # Calculate number of days
+            days_borrowed = (return_date - borrowed_date).days
+            if days_borrowed < 1:
+                days_borrowed = 1
+
+            user = request.user
             user.payment_status = CustomUser.PaymentStatus.PENDING
-            user.borrowed_date = timezone.now().date()
+            user.borrowed_date = borrowed_date
             user.return_date = return_date
+            user.days_borrowed = days_borrowed
+            user.status = 'pending'
             user.save()
+
+            # Store in session if needed
+            request.session['days_borrowed'] = days_borrowed
 
             return redirect(f"{reverse('user_dashboard')}?step=3")
 
@@ -512,12 +568,22 @@ def finalize_booking(request):
 
         car = get_object_or_404(Car, id=car_id)
 
-        BorrowedCar.objects.create(
+        borrowed_car = BorrowedCar.objects.create(
             user=request.user,
             car=car,
             rental_price=car.rental_price,
             status='pending'
         )
+        borrowed_car.save()
+
+        borrowed_car_history = BorrowCarHistory.objects.create(
+            user=request.user,
+            car=car,
+            borrowed_date=timezone.now(),
+            return_date=request.user.return_date,
+            status='pending'
+        )
+        borrowed_car_history.save()
 
         return redirect('user_dashboard')
 

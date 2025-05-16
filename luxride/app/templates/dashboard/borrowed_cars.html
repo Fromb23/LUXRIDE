@@ -14,7 +14,7 @@
     <tbody class="text-gray-700 divide-y divide-gray-200 text-sm">
       {% for record in borrowed_cars %}
       <tr class="hover:bg-gray-50">
-        <td class="py-3 px-4">{{ record.borrowed_date }}</td>
+        <td class="py-3 px-4">{{ record.user.borrowed_date }}</td>
         <td class="py-3 px-4">{{ record.user.return_date }}</td>
         <td class="py-3 px-4">KSh {{ record.rental_price }}</td>
         <td class="py-3 px-4">{{ record.user.full_name }}</td>

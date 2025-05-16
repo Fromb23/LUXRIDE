@@ -23,8 +23,7 @@ class CustomUserManager(BaseUserManager):
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     STATUS_CHOICES = [
         ('none', 'No Car Borrowed'),
-        ('pending', 'Pending'),
-        ('waiting', 'Waiting Verification'),
+        ('pending', 'Waiting Verification'),
         ('borrowed', 'Borrowed'),
     ]
     full_name = models.CharField(max_length=100, default="Unknown")
@@ -32,6 +31,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     password = models.CharField(max_length=128)
     phone_number = models.CharField(max_length=15, blank=True)
     borrowed_date = models.DateField(null=True, blank=True)
+    days_borrowed = models.IntegerField(default=0)
     return_date = models.DateField(null=True, blank=True)
     driving_license_no = models.CharField(max_length=50, unique=True)
     is_superuser = models.BooleanField(default=False)
@@ -95,8 +95,6 @@ class BorrowedCar(models.Model):
     ]
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     car = models.ForeignKey(Car, on_delete=models.CASCADE)
-    borrowed_date = models.DateTimeField(auto_now_add=True)
-    return_date = models.DateTimeField(null=True, blank=True)
     rental_price = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(
         max_length=50, choices=STATUS_CHOICES, default='available')
@@ -106,4 +104,16 @@ class BorrowedCar(models.Model):
 
     def is_borrowed(self):
         """Check if the car is currently borrowed."""
-        return self.return_date is None
+        return self.status == 'borrowed'
+
+
+class BorrowCarHistory(models.Model):
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    car = models.ForeignKey(Car, on_delete=models.CASCADE)
+    borrowed_date = models.DateTimeField(default=timezone.now)
+    return_date = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(
+        max_length=20, choices=BorrowedCar.STATUS_CHOICES, default='borrowed')
+
+    def __str__(self):
+        return f"{self.user.full_name} borrowed {self.car.make} {self.car.model} on {self.borrowed_date}"
