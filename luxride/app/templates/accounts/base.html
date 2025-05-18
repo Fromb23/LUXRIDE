@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Password Reset{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .bg-auth {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .btn-primary {
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-field:focus {
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+    {% block content %}
+    {% endblock %}
+
+    <script>
+        // Display Django messages with SweetAlert
+        {% if messages %}
+        {% for message in messages %}
+        Swal.fire({
+            title: '{{ message.tags|title|escapejs }}',
+            text: '{{ message|escapejs }}',
+            icon: '{{ message.tags|escapejs }}',
+            confirmButtonText: 'OK',
+            buttonsStyling: false,
+            customClass: {
+                confirmButton: 'px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600'
+            }
+        });
+        {% endfor %}
+        {% endif %}
+    </script>
+</body>
+
+</html>

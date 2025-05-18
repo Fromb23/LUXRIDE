@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.http import JsonResponse
 import json
 import datetime
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from .forms import CarForm, BorrowedCarForm
 from django.utils import timezone
 from django.http import HttpResponse
@@ -19,6 +19,7 @@ from django.db.models import Sum
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from django.contrib.auth import login, logout
+from django.contrib.auth.views import PasswordResetConfirmView
 
 
 def home(request):
@@ -359,7 +360,8 @@ def handle_dashboard_view(request):
     retal_history = None
     if borrowed_car or is_borrowed is not None:
         retal_history = get_rental_history(user)
-        print(f"Rental history: {retal_history}")
+        for history in retal_history:
+            print(f"Rental history status: {history.status}")
 
     # Navigation logic
     step_range = range(1, 6)
@@ -602,6 +604,21 @@ def update_car_status(request, car_id):
     return render(request, 'dashboard/borrowed_cars.html', {'form': form, 'borrowed_car': borrowed_car})
 
 
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    template_name = 'accounts/password_reset_confirm.html'
+    success_url = reverse_lazy('password_reset_complete')
+    from django.contrib.auth.forms import SetPasswordForm
+    form_class = SetPasswordForm
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+
 def logout_view(request):
     logout(request)
     return redirect('home')
+
+
+def custom_404(request, exception):
+    return render(request, '404.html', status=404)

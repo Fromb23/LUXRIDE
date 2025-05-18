@@ -19,3 +19,5 @@ from django.urls import path, include
 urlpatterns = [
     path('', include('app.urls')),
 ]
+
+handler404 = 'app.views.custom_404'

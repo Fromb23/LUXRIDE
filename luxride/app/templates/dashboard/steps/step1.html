@@ -4,9 +4,9 @@
     <form action="{% url 'dashboard_step1' %}" method="POST" class="mt-0 space-y-4">
         {% csrf_token %}
 
-        <!-- {% if request.GET.error %}
+        {% if request.GET.error %}
         <p class="text-red-500 text-sm">{{ request.GET.error }}</p>
-        {% endif %} -->
+        {% endif %}
 
         <div class="flex flex-col">
             <label for="full_name" class="text-sm font-medium text-gray-700">Full Name<span

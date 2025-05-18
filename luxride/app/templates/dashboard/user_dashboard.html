@@ -637,35 +637,6 @@
     {% endif %}
 
 
-    // Countdown timer for active rental
-    {% if borrowed_car and is_borrowed %}
-    document.addEventListener("DOMContentLoaded", function () {
-      const endDate = new Date("{{ borrowed_car.end_date|date:'Y-m-d H:i:s' }}").getTime();
-
-      function updateCountdown() {
-        const now = new Date().getTime();
-        const distance = endDate - now;
-
-        if (distance < 0) {
-          document.getElementById("countdown").innerHTML = "Rental expired";
-          return;
-        }
-
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000
-        );
-        document.getElementById("days").innerText = String(days).padStart(2, '0');
-        document.getElementById("hours").innerText = String(hours).padStart(2, '0');
-        document.getElementById("minutes").innerText = String(minutes).padStart(2, '0');
-        document.getElementById("seconds").innerText = String(seconds).padStart(2, '0');
-      }
-      updateCountdown();
-      setInterval(updateCountdown, 1000);
-    });
-    {% endif %}
-
     document.getElementById("profileBtn").addEventListener("click", function () {
       const dropdown = document.getElementById("dropdownMenu");
       dropdown.classList.toggle("hidden");
