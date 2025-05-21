@@ -108,12 +108,16 @@ class BorrowedCar(models.Model):
 
 
 class BorrowCarHistory(models.Model):
+    STATUS_CHOICES = [
+        ('ongoing', 'Ongoing'),
+        ('returned', 'Returned'),
+    ]
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     car = models.ForeignKey(Car, on_delete=models.CASCADE)
     borrowed_date = models.DateTimeField(default=timezone.now)
     return_date = models.DateTimeField(null=True, blank=True)
     status = models.CharField(
-        max_length=20, choices=BorrowedCar.STATUS_CHOICES, default='borrowed')
+        max_length=20, choices=STATUS_CHOICES, default='ongoing')
 
     def __str__(self):
         return f"{self.user.full_name} borrowed {self.car.make} {self.car.model} on {self.borrowed_date}"

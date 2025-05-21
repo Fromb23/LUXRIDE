@@ -117,9 +117,10 @@
     </div>
   </header>
 
+
   <div class="flex flex-1 container mx-auto px-4 py-6">
     <main class="flex-1 w-full">
-      {% if borrowed_car or is_borrowed %}
+      {% if car.status == 'borrowed' or car.status == 'pending' %}
       <!-- Active Rental Section -->
       <div class="bg-white p-6 rounded-2xl shadow-lg animate__animated animate__fadeIn">
         <div class="flex justify-between items-center mb-6">
@@ -165,49 +166,6 @@
               </div>
             </div>
 
-            <!-- Countdown Timer -->
-            <!-- <div class="bg-gradient-to-r from-luxgreen/10 to-luxgray/10 p-4 rounded-lg border border-luxgreen/20">
-              <p class="text-sm text-gray-600 mb-1">Time remaining in your rental</p>
-              <div id="countdown" class="text-2xl font-bold text-luxgreen-dark">
-                <span id="days">00</span>d <span id="hours">00</span>h <span id="minutes">00</span>m <span
-                  id="seconds">00</span>s
-              </div>
-            </div>
-            {% if return_date %}
-            <script>
-              document.addEventListener("DOMContentLoaded", function () {
-                // return_date is a timestamp (seconds), convert to milliseconds for JS Date
-                const returnDate = new Date({{ return_date }} * 1000);
-
-              function updateCountdown() {
-                const now = new Date();
-                const diff = returnDate - now;
-
-                if (diff <= 0) {
-                  document.getElementById("countdown").innerHTML = "00d 00h 00m 00s";
-                  clearInterval(timer);
-                  return;
-                }
-
-                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-                const minutes = Math.floor((diff / (1000 * 60)) % 60);
-                const seconds = Math.floor((diff / 1000) % 60);
-
-                document.getElementById("days").textContent = String(days).padStart(2, '0');
-                document.getElementById("hours").textContent = String(hours).padStart(2, '0');
-                document.getElementById("minutes").textContent = String(minutes).padStart(2, '0');
-                document.getElementById("seconds").textContent = String(seconds).padStart(2, '0');
-              }
-
-              updateCountdown();
-              const timer = setInterval(updateCountdown, 1000);
-  });
-            </script>
-            {% endif %} -->
-
-
-
             <!-- Action Buttons -->
             <div class="flex flex-wrap gap-3 pt-2">
               <button
@@ -242,51 +200,7 @@
         </div>
       </div>
 
-      <!-- Rental History Section -->
-      <div class="bg-white p-6 rounded-2xl shadow-lg mt-6 animate__animated animate__fadeIn animate__delay-1s">
-        <h2 class="text-2xl font-bold mb-4 text-luxgreen">Your Rental History</h2>
-
-        <div class="overflow-x-auto"> <!-- Ensures table is scrollable on small screens -->
-          <table class="w-full text-left border-separate border-spacing-0 rounded-lg overflow-hidden">
-            <thead>
-              <tr class="bg-gray-100 text-gray-700">
-                <th class="p-3 border-b border-gray-200 font-semibold">Car Make</th>
-                <th class="p-3 border-b border-gray-200 font-semibold">Car Model</th>
-                <th class="p-3 border-b border-gray-200 font-semibold">Status</th>
-                <th class="p-3 border-b border-gray-200 font-semibold">Borrowed On</th>
-                <th class="p-3 border-b border-gray-200 font-semibold">Expected return</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for record in rental_history %}
-              <tr
-                class="{% if record.is_borrowed %}bg-luxgreen/10 text-luxgreen-dark{% else %}bg-gray-50 text-gray-600{% endif %} hover:bg-gray-100 transition-colors">
-                <td class="p-3 border-b border-gray-200">{{ record.car.make }}</td>
-                <td class="p-3 border-b border-gray-200">{{ record.car.model }}</td>
-                <td class="p-3 border-b border-gray-200 font-medium">
-                  {% if record.status == 'pending' %}
-                  <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Ongoing</span>
-                  {% else %}
-                  <span class="px-2 py-1 bg-gray-200 text-gray-600 rounded-full text-xs">Returned</span>
-                  {% endif %}
-                </td>
-                <td class="p-3 border-b border-gray-200 
-                ">{{ record.borrowed_date|date:"M d, Y" }}</td>
-                <td class="p-3 border-b border-gray-200">
-                  {% if record.return_date %}
-                  {{ record.return_date|date:"M d, Y" }}
-                  {% else %}
-                  <span class="text-gray-400">-</span>
-                  {% endif %}
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-
+      {% include 'dashboard/view_car_history.html' %}
       <!-- Help Card -->
       <div
         class="mt-6 p-5 bg-gradient-to-r from-luxgreen/5 to-luxgray/5 rounded-xl border border-luxgreen/20 animate__animated animate__fadeIn animate__delay-1s">
@@ -326,7 +240,8 @@
       </div>
 
       <!-- Featured Car Slider -->
-      <div id="carSlider" class="relative w-full h-96 md:h-[32rem] rounded-2xl overflow-hidden shadow-lg mb-8">
+      <div id="carSlider"
+        class="relative w-full max-w-6xl mx-auto h-96 md:h-[32rem] rounded-2xl overflow-hidden shadow-lg mb-8">
         <div class="flex h-full car-slide">
           {% for car in cars %}
           <div class="w-full h-full flex-shrink-0 relative">
@@ -394,7 +309,11 @@
         </div>
       </div>
       {% endif %}
-
+      <div class="mb-6">
+        {% if borrowed_car %}
+        {% include 'dashboard/view_car_history.html' %}
+        {% endif %}
+      </div>
       <!-- Car Grid -->
       <div class="mb-8">
         <h3 class="text-2xl font-bold text-gray-800 mb-6">Our Fleet</h3>
@@ -448,6 +367,7 @@
             </div>
           </div>
           {% endfor %}
+
         </div>
       </div>
 
@@ -477,34 +397,33 @@
           <div class="flex items-center justify-between max-w-3xl mx-auto">
             {% for i in step_range %}
             <div class="flex flex-col items-center relative">
-              {% if i <= max_reached_step %} <!-- Make step clickable if it's <=max_reached_step -->
-                <a href="?step={{ i }}" class="flex flex-col items-center group">
-                  {% if current_step > i %}
-                  <!-- Completed step -->
-                  <div
-                    class="w-12 h-12 rounded-full bg-luxgreen border-2 border-luxgreen flex items-center justify-center text-white font-bold text-lg transition-all group-hover:bg-luxgreen-dark group-hover:border-luxgreen-dark">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clip-rule="evenodd" />
-                    </svg>
-                  </div>
-                  {% elif current_step == i %}
-                  <!-- Current step -->
-                  <div
-                    class="w-12 h-12 rounded-full bg-luxgreen border-2 border-luxgreen flex items-center justify-center text-white font-bold text-lg">
-                    {{ i }}
-                  </div>
-                  {% else %}
-                  <!-- Future step (within unlocked range) -->
-                  <div
-                    class="w-12 h-12 rounded-full bg-gray-100 border-2 border-luxgreen flex items-center justify-center text-luxgreen font-bold text-lg transition-all group-hover:bg-luxgreen-light">
-                    {{ i }}
-                  </div>
-                  {% endif %}
-                  <span
-                    class="mt-2 text-sm font-medium {% if i <= max_reached_step %}text-luxgreen{% else %}text-gray-500{% endif %}">Step
-                    {{ i }}</span>
+              {% if i <= max_reached_step %} <a href="?step={{ i }}" class="flex flex-col items-center group">
+                {% if current_step > i %}
+                <!-- Completed step -->
+                <div
+                  class="w-12 h-12 rounded-full bg-luxgreen border-2 border-luxgreen flex items-center justify-center text-white font-bold text-lg transition-all group-hover:bg-luxgreen-dark group-hover:border-luxgreen-dark">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd" />
+                  </svg>
+                </div>
+                {% elif current_step == i %}
+                <!-- Current step -->
+                <div
+                  class="w-12 h-12 rounded-full bg-luxgreen border-2 border-luxgreen flex items-center justify-center text-white font-bold text-lg">
+                  {{ i }}
+                </div>
+                {% else %}
+                <!-- Future step (within unlocked range) -->
+                <div
+                  class="w-12 h-12 rounded-full bg-gray-100 border-2 border-luxgreen flex items-center justify-center text-luxgreen font-bold text-lg transition-all group-hover:bg-luxgreen-light">
+                  {{ i }}
+                </div>
+                {% endif %}
+                <span
+                  class="mt-2 text-sm font-medium {% if i <= max_reached_step %}text-luxgreen{% else %}text-gray-500{% endif %}">Step
+                  {{ i }}</span>
                 </a>
                 {% else %}
                 <!-- Future locked step (beyond max_reached_step) -->
@@ -528,11 +447,13 @@
           </div>
         </div>
 
+
         <!-- Step Content -->
         {% include 'dashboard/step_contents.html' %}
       </div>
       {% endif %}
     </main>
+
   </div>
 
   <!-- Premium Footer -->

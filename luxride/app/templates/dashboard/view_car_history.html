@@ -1,0 +1,44 @@
+<!-- Rental History Section -->
+
+<div class="bg-white p-6 rounded-2xl shadow-lg mt-6 animate__animated animate__fadeIn animate__delay-1s">
+    <h2 class="text-2xl font-bold mb-4 text-luxgreen">Your Rental History</h2>
+
+    <div class="overflow-x-auto"> <!-- Ensures table is scrollable on small screens -->
+        <table class="w-full text-left border-separate border-spacing-0 rounded-lg overflow-hidden">
+            <thead>
+                <tr class="bg-gray-100 text-gray-700">
+                    <th class="p-3 border-b border-gray-200 font-semibold">Car Make</th>
+                    <th class="p-3 border-b border-gray-200 font-semibold">Car Model</th>
+                    <th class="p-3 border-b border-gray-200 font-semibold">Status</th>
+                    <th class="p-3 border-b border-gray-200 font-semibold">Borrowed On</th>
+                    <th class="p-3 border-b border-gray-200 font-semibold">Expected return</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in rental_history %}
+                <tr
+                    class="{% if record.is_borrowed %}bg-luxgreen/10 text-luxgreen-dark{% else %}bg-gray-50 text-gray-600{% endif %} hover:bg-gray-100 transition-colors">
+                    <td class="p-3 border-b border-gray-200">{{ record.car.make }}</td>
+                    <td class="p-3 border-b border-gray-200">{{ record.car.model }}</td>
+                    <td class="p-3 border-b border-gray-200 font-medium">
+                        {% if record.status == 'ongoing' %}
+                        <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Ongoing</span>
+                        {% else %}
+                        <span class="px-2 py-1 bg-gray-200 text-gray-600 rounded-full text-xs">Returned</span>
+                        {% endif %}
+                    </td>
+                    <td class="p-3 border-b border-gray-200 
+                      ">{{ record.borrowed_date|date:"M d, Y" }}</td>
+                    <td class="p-3 border-b border-gray-200">
+                        {% if record.return_date %}
+                        {{ record.return_date|date:"M d, Y" }}
+                        {% else %}
+                        <span class="text-gray-400">-</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

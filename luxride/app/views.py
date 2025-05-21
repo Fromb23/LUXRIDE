@@ -136,8 +136,16 @@ def car_details(request, car_id):
 
 
 def get_selected_car(user, session):
-    if user.selected_car_id:
-        return user.selected_car
+    borrowed_car = BorrowedCar.objects.filter(
+        user=user,
+        status__in=['borrowed', 'pending']
+    ).select_related('car').first()
+
+    if borrowed_car:
+        user.selected_car = borrowed_car.car
+        user.save()
+        session['car_id'] = borrowed_car.car.id
+        return borrowed_car.car
 
     car_id = session.get('car_id')
     if car_id:
@@ -147,7 +155,7 @@ def get_selected_car(user, session):
             user.save()
             return car
         except Car.DoesNotExist:
-            return None
+            pass
 
     return None
 
@@ -361,7 +369,8 @@ def handle_dashboard_view(request):
     if borrowed_car or is_borrowed is not None:
         retal_history = get_rental_history(user)
         for history in retal_history:
-            print(f"Rental history status: {history.status}")
+            print(f"Rental history: {history}")
+            print(f"Rental history car: {history.car}")
 
     # Navigation logic
     step_range = range(1, 6)
@@ -410,33 +419,71 @@ def update_status(request, car_id):
 
 
 def update_borrowed_car_status(request, pk):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            status = data.get('status')
-            borrowed_car = BorrowedCar.objects.get(pk=pk)
-            borrowed_car.status = status
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Invalid method'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        new_status = data.get('status')
+
+        borrowed_car = BorrowedCar.objects.get(pk=pk)
+        old_status = borrowed_car.status
+
+        # Only proceed if status actually changes
+        if old_status != new_status:
+            borrowed_car.status = new_status
             borrowed_car.save()
+
             car = borrowed_car.car
-            car.status = status
-            car.available = False if status == 'borrowed' or status == 'pending' else True
+            car.status = new_status
+            car.available = (new_status == 'available')
             car.save()
 
             borrower = borrowed_car.user
-            if status == 'borrowed':
+
+            # If changing from borrowed to available -> mark history returned
+            if old_status == 'borrowed' and new_status == 'available':
+                ongoing_history = BorrowCarHistory.objects.filter(
+                    user=borrower, car=car, status='ongoing'
+                ).last()
+                if ongoing_history:
+                    ongoing_history.status = 'returned'
+                    ongoing_history.return_date = timezone.now()
+                    ongoing_history.save()
+
+            # If changing from non-borrowed to borrowed -> create history if none ongoing
+            elif old_status != 'borrowed' and new_status == 'borrowed':
+                ongoing = BorrowCarHistory.objects.filter(
+                    user=borrower, car=car, status='ongoing'
+                ).exists()
+                if not ongoing:
+                    BorrowCarHistory.objects.create(
+                        user=borrower,
+                        car=car,
+                        borrowed_date=timezone.now(),
+                        status='ongoing'
+                    )
+
+            # Update borrower status
+            has_borrowed = BorrowedCar.objects.filter(
+                user=borrower, status='borrowed').exists()
+            has_pending = BorrowedCar.objects.filter(
+                user=borrower, status='pending').exists()
+
+            if has_borrowed:
                 borrower.status = 'borrowed'
-            elif status == 'available':
-                borrower.status = 'available'
-            elif status == 'pending':
+            elif has_pending:
                 borrower.status = 'pending'
+            else:
+                borrower.status = 'none'
+
             borrower.save()
 
-            return JsonResponse({'success': True})
+        return JsonResponse({'success': True})
 
-        except Exception as e:
-            print(f"Error: {e}")
-            return JsonResponse({'success': False, 'error': str(e)}, status=400)
-    return JsonResponse({'error': 'Invalid method'}, status=405)
+    except Exception as e:
+        print(f"Error: {e}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 
 # car application steps
@@ -563,12 +610,19 @@ def finalize_booking(request):
         current_step = request.user.current_step
         current_step = 0
         request.user.current_step = current_step
+        request.user.status = 'pending'
         request.user.save()
 
         if not car_id:
             return HttpResponseBadRequest("Car ID not found.")
 
         car = get_object_or_404(Car, id=car_id)
+
+        Car.objects.filter(id=car_id).update(status='pending', available=False)
+
+        # Refresh the object to get updated data
+        car.refresh_from_db()
+        print(f"Car status updated to pending: {car.status}")
 
         borrowed_car = BorrowedCar.objects.create(
             user=request.user,
@@ -581,11 +635,14 @@ def finalize_booking(request):
         borrowed_car_history = BorrowCarHistory.objects.create(
             user=request.user,
             car=car,
+            status='ongoing',
             borrowed_date=timezone.now(),
             return_date=request.user.return_date,
-            status='pending'
         )
+
         borrowed_car_history.save()
+
+        start_new_booking(request)
 
         return redirect('user_dashboard')
 
@@ -613,6 +670,12 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     def form_valid(self, form):
         form.save()
         return super().form_valid(form)
+
+
+def generate_report(request):
+    borrowers = BorrowedCar.objects.all()
+    total_revenue = sum(b.rental_price for b in borrowers)
+    return render(request, 'dashboard/generate_reports.html', {'borrowers': borrowers, 'total_revenue': total_revenue})
 
 
 def logout_view(request):

@@ -26,7 +26,7 @@ load_dotenv()
 SECRET_KEY = 'django-insecure-ye&1ur=l9pz27&%zmkdc4chsb91wueytk*!_8@hzs_9-du_@81'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
@@ -54,6 +54,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'luxride.middleware.prevent_back_middleware.PreventBackMiddleware',
 ]
 
 ROOT_URLCONF = 'luxride.urls'

@@ -36,6 +36,8 @@ urlpatterns = [
     # borrowed logs
     path('admin/dashboard/borrowed-logs/',
          views.borrowed_logs, name='borrowed_logs'),
+    path('admin/dashboard/reports/',
+         views.generate_report, name='generate_report'),
     path('update-borrowed-car-status/<int:pk>/',
          views.update_borrowed_car_status, name='update_borrowed_car_status'),
 

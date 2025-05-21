@@ -1,5 +1,3 @@
-// Delete modal functions
-console.log("Delete modal script loaded.");
 let carToDelete = null;
 
 function confirmDelete(carId) {
@@ -14,7 +12,6 @@ function closeDeleteModal() {
   document.body.classList.remove("overflow-hidden");
 }
 
-// Adding event listener for the Confirm Delete button
 document.body.addEventListener("click", function (event) {
   if (event.target && event.target.id === "confirm-delete-btn") {
     // Get the carId from the button or another place
