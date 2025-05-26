@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const amount = userRow.querySelectorAll('td')[4].textContent.trim();
 
   // Create a nicely formatted print document
-  const printWindow = window.open('', '', 'width=800,height=600');
+  const printWindow = window.open('', '', 'width=900,height=700');
   printWindow.document.write(`
     <html>
       <head>

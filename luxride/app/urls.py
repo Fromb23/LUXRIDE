@@ -1,57 +1,61 @@
-from django.urls import path, reverse_lazy
+from django.urls import path
 from django.conf import settings
 from django.contrib.auth import views as auth_views
 from django.conf.urls.static import static
-from . import views
-from .forms import CustomPasswordResetForm, PasswordResetForm
-from .views import CustomPasswordResetConfirmView
+from .views import auth, admin_dashboard, client_dashboard, reports, CustomPasswordResetConfirmView
+from .forms import CustomPasswordResetForm
+
 
 urlpatterns = [
-    path('', views.home, name='home'),
-    path('auth/login/', views.login_view, name='login'),
-    path('auth/logout/', views.logout_view, name='logout'),
-    path('auth/register/', views.register_view, name='register'),
-    path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
-    path('admin/dashboard/main-content/', views.admin_main_content,
+    path('', auth.home, name='home'),
+    path('auth/login/', auth.login_view, name='login'),
+    path('auth/logout/', auth.logout_view, name='logout'),
+    path('auth/register/', auth.register_view, name='register'),
+    path('admin/dashboard/', admin_dashboard.dashboard, name='admin_dashboard'),
+    path('admin/dashboard/main-content/', admin_dashboard.admin_main_content,
          name='admin_main_content'),
-    path('dashboard/', views.user_dashboard_view, name='user_dashboard'),
+    path('dashboard/', client_dashboard.user_dashboard_view, name='user_dashboard'),
 
     # car management
-    path('admin/dashboard/cars/', views.manage_cars, name='manage-cars'),
-    path('dashboard/cars/create/', views.create_car, name='create_car'),
-    path('start-new-booking/', views.start_new_booking, name='start_new_booking'),
-    path('cars/<int:car_id>/edit/', views.edit_car, name='edit_car'),
-    path('cars/<int:car_id>/delete/', views.delete_car, name='delete_car'),
-    path('cars/<int:car_id>/status/', views.update_status,
+    path('admin/dashboard/cars/', admin_dashboard.manage_cars, name='manage-cars'),
+    path('dashboard/cars/create/', admin_dashboard.create_car, name='create_car'),
+    path('start-new-booking/', client_dashboard.start_new_booking,
+         name='start_new_booking'),
+    path('cars/<int:car_id>/edit/', admin_dashboard.edit_car, name='edit_car'),
+    path('cars/<int:car_id>/delete/',
+         admin_dashboard.delete_car, name='delete_car'),
+    path('cars/<int:car_id>/status/', client_dashboard.update_status,
          name='update_status'),
     path('dashboard/car_details/<int:car_id>/',
-         views.car_details, name='car_details'),
+         admin_dashboard.car_details, name='car_details'),
     path('admin/dashboard/borrowed-car/<int:car_id>/edit/',
-         views.update_car_status, name='update_car_status'),
+         client_dashboard.update_car_status, name='update_car_status'),
 
     # user management
     path('admin/dashboard/users/',
-         views.manage_users, name='manage_users'),
+         admin_dashboard.manage_users, name='manage_users'),
 
     # borrowed logs
     path('admin/dashboard/borrowed-logs/',
-         views.borrowed_logs, name='borrowed_logs'),
+         admin_dashboard.borrowed_logs, name='borrowed_logs'),
     path('admin/dashboard/reports/',
-         views.generate_report, name='generate_report'),
+         reports.generate_report, name='generate_report'),
     path('update-borrowed-car-status/<int:pk>/',
-         views.update_borrowed_car_status, name='update_borrowed_car_status'),
+         client_dashboard.update_borrowed_car_status, name='update_borrowed_car_status'),
 
     # steps for car application
-    path('dashboard/step1', views.dashboard_step1, name='dashboard_step1'),
-    path('dashboard/step2/', views.dashboard_step2, name='dashboard_step2'),
+    path('dashboard/step1', client_dashboard.dashboard_step1, name='dashboard_step1'),
+    path('dashboard/step2/', client_dashboard.dashboard_step2,
+         name='dashboard_step2'),
 
     # initiate mpesa payment
     path('initiate-mpesa-payment/',
-         views.initiate_mpesa_payment, name='initiate_mpesa_payment'),
-    path('card-payment/', views.process_card_payment,
+         client_dashboard.initiate_mpesa_payment, name='initiate_mpesa_payment'),
+    path('card-payment/', client_dashboard.process_card_payment,
          name='process_card_payment'),
-    path('agree-terms/', views.agree_terms, name='agree_terms'),
-    path('finalize-booking/', views.finalize_booking, name='finalize_booking'),
+    path('agree-terms/', client_dashboard.agree_terms, name='agree_terms'),
+    path('finalize-booking/', client_dashboard.finalize_booking,
+         name='finalize_booking'),
 
     # Password reset URLs
     path('password-reset/',

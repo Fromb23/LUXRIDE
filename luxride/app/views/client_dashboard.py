@@ -1,37 +1,17 @@
-from datetime import datetime
-from django.views.decorators.http import require_http_methods
-from django.shortcuts import render, redirect
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponseBadRequest, HttpResponseForbidden, Http404
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
-import json
-import datetime
-from django.urls import reverse, reverse_lazy
-from .forms import CarForm, BorrowedCarForm
-from django.utils import timezone
-from django.http import HttpResponse
-from .models import CustomUser, BorrowedCar, Car, BorrowCarHistory
-from django.db.models import Sum
-from django.contrib.auth.hashers import make_password
+from django.views.decorators.http import require_http_methods
 from django.contrib import messages
-from django.contrib.auth import login, logout
-from django.contrib.auth.views import PasswordResetConfirmView
-
-
-def home(request):
-    return render(request, 'home.html')
-
-
-def login_view(request):
-    return render(request, 'auth/login.html')
-
-
-def register_view(request):
-    return render(request, 'auth/create_user.html')
+from django.http import HttpResponseForbidden, Http404
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponseBadRequest
+from ..forms import BorrowedCarForm
+from ..models import CustomUser, Car, BorrowedCar, BorrowCarHistory
+from django.urls import reverse
+import datetime
+import json
+from django.utils import timezone
 
 
 def is_regular_user(user):
@@ -52,191 +32,6 @@ def user_dashboard(request):
         'step_range': range(1, 6),
     }
     return render(request, 'dashboard/user_dashboard.html', context)
-
-
-@login_required
-def admin_dashboard(request):
-    available_cars_count = BorrowedCar.objects.filter(
-        status='available').count()
-    borrowed_cars_count = BorrowedCar.objects.filter(status='borrowed').count()
-    pending_borrows_count = BorrowedCar.objects.filter(
-        status='pending').count()
-
-    total_revenue = BorrowedCar.objects.aggregate(
-        Sum('rental_price')
-    )['rental_price__sum'] or 0
-
-    # Get recent borrows from history
-    recent_borrows = BorrowCarHistory.objects.order_by('-borrowed_date')[:5]
-
-    # Ongoing borrows (still active)
-    ongoing_borrows = BorrowedCar.objects.filter(status='borrowed')[:5]
-
-    context = {
-        'available_cars_count': available_cars_count,
-        'borrowed_cars_count': borrowed_cars_count,
-        'pending_borrows_count': pending_borrows_count,
-        'total_revenue': total_revenue,
-        'recent_borrows': recent_borrows,
-        'ongoing_borrows': ongoing_borrows,
-    }
-    return render(request, 'dashboard/admin_dashboard.html', context)
-
-
-def admin_main_content(request):
-    return render(request, 'dashboard/admin_main_content.html')
-
-
-def manage_cars(request):
-    cars = Car.objects.all()
-    for car in cars:
-        print(car.image)
-        print(car.image.url)
-    return render(request, 'dashboard/manage_cars.html', {'cars': cars})
-
-
-def create_car(request):
-    if request.method == 'POST':
-        form = CarForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Car created successfully.')
-            return redirect('admin_dashboard')
-    else:
-        form = CarForm()
-    return render(request, 'dashboard/create_car.html', {'form': form})
-
-
-def edit_car(request, car_id):
-    car = get_object_or_404(Car, id=car_id)
-    if request.method == 'POST':
-        form = CarForm(request.POST, request.FILES, instance=car)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Car updated successfully.')
-            return redirect('manage_cars')
-    else:
-        form = CarForm(instance=car)
-
-    return render(request, 'dashboard/edit_car.html', {'form': form, 'car': car})
-
-
-def delete_car(request, car_id):
-    car = get_object_or_404(Car, id=car_id)
-    if request.method == 'POST':
-        car.delete()
-        messages.success(request, 'Car deleted successfully.')
-        return redirect('manage-cars')
-
-
-def car_details(request, car_id):
-    print("Car details view called")
-    car = get_object_or_404(Car, id=car_id)
-    return render(request, 'dashboard/partials/car_details.html', {'car': car})
-
-
-def get_selected_car(user, session):
-    borrowed_car = BorrowedCar.objects.filter(
-        user=user,
-        status__in=['borrowed', 'pending']
-    ).select_related('car').first()
-
-    if borrowed_car:
-        user.selected_car = borrowed_car.car
-        user.save()
-        session['car_id'] = borrowed_car.car.id
-        return borrowed_car.car
-
-    car_id = session.get('car_id')
-    if car_id:
-        try:
-            car = Car.objects.get(id=car_id)
-            user.selected_car = car
-            user.save()
-            return car
-        except Car.DoesNotExist:
-            pass
-
-    return None
-
-
-def manage_users(request):
-    users = CustomUser.objects.all()
-    return render(request, 'dashboard/manage_users.html', {'users': users})
-
-
-def borrowed_logs(request):
-    borrowed_cars = BorrowedCar.objects.all()
-    print(f"Borrowed cars: {borrowed_cars}")
-    statuses = [choice[0] for choice in BorrowedCar.STATUS_CHOICES]
-
-    current_statuses = {}
-    for borrowed_car in borrowed_cars:
-        current_statuses[borrowed_car.id] = borrowed_car.status
-
-    return render(request, 'dashboard/borrowed_cars.html', {
-        'borrowed_cars': borrowed_cars,
-        'statuses': statuses,
-        'current_statuses': current_statuses
-    })
-
-
-def register_view(request):
-    print("Register view called")
-    if request.method == 'POST':
-        form_type = request.POST.get('form_type')
-
-        if form_type == "register_form":
-            print("Register form submitted")
-            full_name = request.POST.get('full_name')
-            email = request.POST.get('email')
-            phone_number = request.POST.get('phone')
-            password = request.POST.get('password')
-            confirm_password = request.POST.get('confirm_password')
-            driving_license_no = request.POST.get('driving_license_no')
-
-            if password != confirm_password:
-                print("Passwords do not match")
-                return render(request, 'auth/create_user.html', {'error': 'Passwords do not match.'})
-
-            hashed_password = make_password(password)
-            CustomUser.objects.create(
-                full_name=full_name,
-                email=email,
-                phone_number=phone_number,
-                password=hashed_password,
-                driving_license_no=driving_license_no
-            )
-
-            return render(request, 'auth/login.html', {'success': 'User created successfully.'})
-
-    return render(request, 'auth/create_user.html')
-
-
-def login_view(request):
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-
-        try:
-            user = CustomUser.objects.get(email=email)
-
-            if user.check_password(password):
-                login(request, user)
-
-                messages.success(request, 'Login successful.')
-
-                if user.is_superuser:
-                    return redirect('admin_dashboard')
-                else:
-                    return redirect('user_dashboard')
-
-            else:
-                return render(request, 'auth/login.html', {'error': 'Invalid credentials.'})
-        except CustomUser.DoesNotExist:
-            return render(request, 'auth/login.html', {'error': 'User does not exist.'})
-
-    return render(request, 'auth/login.html')
 
 
 @require_http_methods(["GET", "POST"])
@@ -275,27 +70,6 @@ def handle_step_control(request):
         'current_step': user.current_step,
         'locked_steps': locked_steps
     })
-
-
-@login_required
-def start_new_booking(request):
-    """Start a new booking by resetting the user's current step"""
-    user = request.user
-    user.current_step = 0
-    user.has_agreed_terms = False
-    user.locked_steps = []
-    user.selected_car_id = None
-    user.save()
-    print(f"user selected car id after reset: {user.selected_car_id}")
-
-    # Clear the session car_id
-    request.session.pop('car_id', None)
-    return redirect('user_dashboard')
-
-
-def get_rental_history(user):
-    """Get the rental history of the user"""
-    return BorrowCarHistory.objects.filter(user=user).order_by('-borrowed_date')
 
 
 def handle_dashboard_view(request):
@@ -402,6 +176,52 @@ def handle_dashboard_view(request):
     })
 
 
+@login_required
+def start_new_booking(request):
+    """Start a new booking by resetting the user's current step"""
+    user = request.user
+    user.current_step = 0
+    user.has_agreed_terms = False
+    user.locked_steps = []
+    user.selected_car_id = None
+    user.save()
+    print(f"user selected car id after reset: {user.selected_car_id}")
+
+    # Clear the session car_id
+    request.session.pop('car_id', None)
+    return redirect('user_dashboard')
+
+
+def get_rental_history(user):
+    """Get the rental history of the user"""
+    return BorrowCarHistory.objects.filter(user=user).order_by('-borrowed_date')
+
+
+def get_selected_car(user, session):
+    borrowed_car = BorrowedCar.objects.filter(
+        user=user,
+        status__in=['borrowed', 'pending']
+    ).select_related('car').first()
+
+    if borrowed_car:
+        user.selected_car = borrowed_car.car
+        user.save()
+        session['car_id'] = borrowed_car.car.id
+        return borrowed_car.car
+
+    car_id = session.get('car_id')
+    if car_id:
+        try:
+            car = Car.objects.get(id=car_id)
+            user.selected_car = car
+            user.save()
+            return car
+        except Car.DoesNotExist:
+            pass
+
+    return None
+
+
 def update_status(request, car_id):
     car = get_object_or_404(Car, id=car_id)
 
@@ -484,9 +304,6 @@ def update_borrowed_car_status(request, pk):
     except Exception as e:
         print(f"Error: {e}")
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
-
-
-# car application steps
 
 
 def dashboard_step1(request):
@@ -659,29 +476,3 @@ def update_car_status(request, car_id):
         form = BorrowedCarForm(instance=borrowed_car)
 
     return render(request, 'dashboard/borrowed_cars.html', {'form': form, 'borrowed_car': borrowed_car})
-
-
-class CustomPasswordResetConfirmView(PasswordResetConfirmView):
-    template_name = 'accounts/password_reset_confirm.html'
-    success_url = reverse_lazy('password_reset_complete')
-    from django.contrib.auth.forms import SetPasswordForm
-    form_class = SetPasswordForm
-
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form)
-
-
-def generate_report(request):
-    borrowers = BorrowedCar.objects.all()
-    total_revenue = sum(b.rental_price for b in borrowers)
-    return render(request, 'dashboard/generate_reports.html', {'borrowers': borrowers, 'total_revenue': total_revenue})
-
-
-def logout_view(request):
-    logout(request)
-    return redirect('home')
-
-
-def custom_404(request, exception):
-    return render(request, '404.html', status=404)

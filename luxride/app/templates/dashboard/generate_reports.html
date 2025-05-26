@@ -249,10 +249,13 @@
             </div>
             <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
-                    <p class="text-sm text-gray-700">
-                        Showing <span class="font-medium">{{ borrowers.start_index }}</span> to <span
-                            class="font-medium">1</span> of <span class="font-medium">4</span> results
+                    <p class="text-sm text-gray-700">Showing
+                        <span class="font-medium">{{ borrowers.start_index }}</span> to <span class="font-medium">
+                            {{ borrowers.end_index }}</span> of <span class="font-medium">
+                            {{ borrowers.paginator.count }}
+                        </span> results
                     </p>
+
                 </div>
                 <div>
                     <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
